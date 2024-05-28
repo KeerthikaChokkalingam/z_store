@@ -12,7 +12,6 @@ class RatingView: UIView {
     private var stackView: UIStackView!
     private var ratingButtons: [UIButton] = []
     private let filledStarImage = UIImage(systemName: "star.fill")
-//    private let emptyStarImage = UIImage(systemName: "star")
     private let numberOfStars = 5
     
     // Define the colors for filled and unfilled stars

@@ -16,13 +16,12 @@ class OfferCardCell: UICollectionViewCell {
     weak var cardImage: CustomImageView!
     
     var cardOffersArray = [String: Any]()
-    var gradientLayer: CAGradientLayer! // Now a property initialized in init
+    var gradientLayer: CAGradientLayer!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpUI()
         setUpConstraints()
-//        addGradient()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -51,7 +50,6 @@ class OfferCardCell: UICollectionViewCell {
         offerDesc.font = UIFont(name: "SF Pro Text", size: 14)
         offerDesc.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
         offerDesc.textColor = .red
-//        offerDesc.sizeToFit()
         offerDesc.numberOfLines = 0
         self.offerDesc = offerDesc
         self.backView.addSubview(offerDesc)
@@ -119,14 +117,14 @@ class OfferCardCell: UICollectionViewCell {
         
     }
     
-    func updateCell(offerResponse: [String: Any]) {
-        cardname.text = offerResponse["card_name"] as? String
-        offerDesc.text = offerResponse["offer_desc"] as? String
-        maxDiscount.text = offerResponse["max_discount"] as? String
+    func updateCell(offerResponse: CardOfferResponse?) {
+        cardname.text = offerResponse?.cardName as? String
+        offerDesc.text = offerResponse?.offerDesc as? String
+        maxDiscount.text = offerResponse?.maxDiscount as? String
         cardImage.contentMode = .scaleAspectFill
         cardImage.layer.cornerRadius = 13
-        if offerResponse["image_url"] != nil && offerResponse["image_url"] as! String != "" {
-            cardImage.loadImage(urlString: (offerResponse["image_url"] as? String) ?? "" )
+        if offerResponse?.imageUrl != nil && offerResponse?.imageUrl != "" {
+            cardImage.loadImage(urlString: (offerResponse?.imageUrl as? String) ?? "" )
         }
     }
 }

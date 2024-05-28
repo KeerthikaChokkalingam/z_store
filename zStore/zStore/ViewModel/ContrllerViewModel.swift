@@ -8,11 +8,33 @@
 import UIKit
 
 class ContrllerViewModel: NSObject {
+    
     var firstCellFrame: CGRect = .zero
     var secondCellFrame: CGRect = .zero
     var thirdCellFrame: CGRect = .zero
     var fouthCellFrame: CGRect = .zero
-    func fetchCategoriesProductsAndOffers(completion: @escaping (Result<[String:Any], Error>) -> Void) {
+    
+    
+    
+    func checkData(completion: @escaping (Result<ApiResponse, Error>) -> Void) {
+        if CoredataBase.shared.checkIfEntityExists(entityName: "Zstore") {
+            print("already Exists")
+            let fetchValue = CoredataBase.shared.fetchCoreDataValues()
+            completion(.success(fetchValue ?? ApiResponse()))
+        } else {
+            fetchCategoriesProductsAndOffers(completion: { result in
+                switch result {
+                case .success(let apiresponse):
+                    print(apiresponse)
+                    completion(.success(apiresponse))
+                case .failure(let error):
+                    print("Failed to fetch data: \(error.localizedDescription)")
+                }
+            })
+        }
+    }
+    
+    func fetchCategoriesProductsAndOffers(completion: @escaping (Result<ApiResponse, Error>) -> Void) {
         let urlString = "https://raw.githubusercontent.com/princesolomon/zstore/main/data.json"
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
@@ -39,19 +61,36 @@ class ContrllerViewModel: NSObject {
             }
             
             do {
-                if let jsonDictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    completion(.success(jsonDictionary))
+                if var jsonDictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    if var productsArray = jsonDictionary["products"] as? [[String: Any]] {
+                        for index in 0..<productsArray.count {
+                            productsArray[index]["addToFav"] = false
+                        }
+                        jsonDictionary["products"] = productsArray
+                        
+                        let jsonData = try JSONSerialization.data(withJSONObject: jsonDictionary, options: [])
+                        
+                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
+                        
+                        if let jsonString = String(data: jsonData, encoding: .utf8) {
+                            CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
+                        }
+                        completion(.success(apiResponse))
+                    } else {
+                        completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
+                    }
                 } else {
-                    let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Data is not a valid JSON dictionary"])
-                    completion(.failure(error))
+                    completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Data is not a valid JSON dictionary"])))
                 }
-            } catch let parseError {
-                completion(.failure(parseError))
+            } catch {
+                completion(.failure(error))
             }
         }
         
         task.resume()
     }
+    // MARK: Dynamic Top Scroll Layout
+    
     func calculateCellFrame(index: Int, cell: UICollectionViewCell) {
         switch index {
         case 0:
@@ -108,7 +147,8 @@ class ContrllerViewModel: NSObject {
         }
     }
     
-    
+    // MARK: Dynamic Waterfall Cell Layout
+
     func calculateWaterFallCellFrame(index: Int, cell: UICollectionViewCell, updatedheight: CGFloat, updatedWidth: CGFloat) -> CGRect {
         switch index {
         case 0:
@@ -122,7 +162,7 @@ class ContrllerViewModel: NSObject {
         }
         return cell.frame
     }
-
+    
     
     private func calculateWaterFallCellPosition(firstFrame: CGRect, secondFrame: CGRect, cell: UICollectionViewCell, updatedheight: CGFloat, updatedWidth: CGFloat) -> CGRect {
         if firstFrame.maxY < secondFrame.maxY {

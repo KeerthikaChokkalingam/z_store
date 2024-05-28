@@ -225,23 +225,23 @@ class LinearListCell: UITableViewCell {
             ])
         }
 
-    func updateCell(listVlaue: [String:Any]) {
-        namelabel.text = listVlaue["name"] as? String
-        let formattedText =  formatProductDescription(listVlaue["description"] as? String ?? "")
-        deliveryLabel.text = formattedText // From step 1
+    func updateCell(listVlaue: ProductResponse?) {
+        namelabel.text = listVlaue?.name as? String
+        let formattedText =  formatProductDescription(listVlaue?.description as? String ?? "")
+        deliveryLabel.text = formattedText 
         deliveryLabel.font = deliveryLabel.font.withSize(deliveryLabel.font.pointSize)
         
-        configureCell(with: listVlaue["colors"] as? [String] ?? [])
+        configureCell(with: listVlaue?.colors as? [String] ?? [])
 
         deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
-        ratingLabel.text = convertToString(from: listVlaue["rating"]) ?? ""
-        ratingView.rating = convertToInt(from: listVlaue["rating"]) ?? 0
-        ratingCount.text = "(" + String(((listVlaue["review_count"] as? Int) ?? 0)) + ")"
-        offerPrice.text =  "₹" + String(((listVlaue["price"] as? Int) ?? 0))
+        ratingLabel.text = convertToString(from: listVlaue?.rating) ?? ""
+        ratingView.rating = convertToInt(from: listVlaue?.rating) ?? 0
+        ratingCount.text = "(" + String(((listVlaue?.reviewCount as? Int) ?? 0)) + ")"
+        offerPrice.text =  "₹" + String(((listVlaue?.price as? Int) ?? 0))
         cardImage.contentMode = .scaleAspectFill
         cardImage.layer.cornerRadius = 13
-        if listVlaue["image_url"] != nil && listVlaue["image_url"] as! String != "" {
-            cardImage.loadImage(urlString: (listVlaue["image_url"] as? String) ?? "" )
+        if listVlaue?.imageUrl != nil && listVlaue?.imageUrl != "" {
+            cardImage.loadImage(urlString: (listVlaue?.imageUrl as? String) ?? "" )
         }
     }
     func convertToInt(from value: Any?) -> Int? {
@@ -273,10 +273,10 @@ class LinearListCell: UITableViewCell {
         let components = description.components(separatedBy: "\n")
 
         for component in components {
-            if let boldRange = component.range(of: "**") { // Check for bold text marker
-                let boldText = String(component[..<boldRange.lowerBound])  // Extract bold text
-                let remainingText = String(component[boldRange.upperBound...]) // Extract remaining text
-                formattedDescription.append("\(boldText)\(remainingText)") // Append bold text and remaining text
+            if let boldRange = component.range(of: "**") {
+                let boldText = String(component[..<boldRange.lowerBound])
+                let remainingText = String(component[boldRange.upperBound...])
+                formattedDescription.append("\(boldText)\(remainingText)")
             } else {
                 formattedDescription.append("\(component)")
             }

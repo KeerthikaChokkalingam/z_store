@@ -6,6 +6,9 @@
 //
 
 import UIKit
+protocol updateTable {
+    func updatedData(response: ApiResponse)
+}
 
 class WaterfallListCell: UICollectionViewCell {
     
@@ -24,11 +27,15 @@ class WaterfallListCell: UICollectionViewCell {
     weak var topLeftIcon: UIImageView!
     weak var topLeftInnerIcon: UIImageView!
     weak var favILabel: UILabel!
+    
+    var localInstance: updateTable?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpUI()
         setUpConstraints()
+        setUpGesture()
+
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -47,6 +54,7 @@ class WaterfallListCell: UICollectionViewCell {
         cardImage.translatesAutoresizingMaskIntoConstraints = false
         cardImage.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
         cardImage.clipsToBounds = true
+        cardImage.isUserInteractionEnabled = true
         self.cardImage = cardImage
         self.backView.addSubview(cardImage)
         
@@ -119,7 +127,6 @@ class WaterfallListCell: UICollectionViewCell {
         addToFavView.layer.cornerRadius = 10
         addToFavView.layer.borderColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
         addToFavView.isHidden = false
-        addToFavView.isUserInteractionEnabled = true
         self.addToFavView = addToFavView
         self.backView.addSubview(addToFavView)
         
@@ -144,6 +151,7 @@ class WaterfallListCell: UICollectionViewCell {
         topLeftIcon.translatesAutoresizingMaskIntoConstraints = false
         topLeftIcon.contentMode = .scaleAspectFit
         topLeftIcon.isHidden = true
+        topLeftIcon.isUserInteractionEnabled = true
         self.topLeftIcon = topLeftIcon
         self.cardImage.addSubview(topLeftIcon)
         
@@ -151,6 +159,7 @@ class WaterfallListCell: UICollectionViewCell {
         topLeftInnerIcon.image = UIImage(named: "shape-3")
         topLeftInnerIcon.translatesAutoresizingMaskIntoConstraints = false
         topLeftInnerIcon.contentMode = .scaleAspectFit
+        topLeftInnerIcon.isUserInteractionEnabled = true
         self.topLeftInnerIcon = topLeftInnerIcon
         self.topLeftIcon.addSubview(topLeftInnerIcon)
         
@@ -221,21 +230,33 @@ class WaterfallListCell: UICollectionViewCell {
             
         ])
     }
-    func updateUI(singleData: [String:Any]) {
-        namelabel.text = singleData["name"] as? String
-        let formattedText =  formatProductDescription(singleData["description"] as? String ?? "")
+    func updateUI(singleData: ProductResponse?) {
+        namelabel.text = singleData?.name as? String
+        let formattedText =  formatProductDescription(singleData?.description as? String ?? "")
         deliveryLabel.text = formattedText // From step 1
         deliveryLabel.font = deliveryLabel.font.withSize(deliveryLabel.font.pointSize)
-                
+        
+        topLeftIcon.accessibilityIdentifier = singleData?.id
+        topLeftIcon.accessibilityHint = "false"
+        addToFavView.accessibilityIdentifier = singleData?.id
+        addToFavView.accessibilityHint = "true"
+        
         deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
-        ratingLabel.text = convertToString(from: singleData["rating"]) ?? ""
-        ratingView.rating = convertToInt(from: singleData["rating"]) ?? 0
-        ratingCount.text = "(" + String(((singleData["review_count"] as? Int) ?? 0)) + ")"
-        offerPrice.text =  "₹" + String(((singleData["price"] as? Int) ?? 0))
+        ratingLabel.text = convertToString(from: singleData?.rating) ?? ""
+        ratingView.rating = convertToInt(from: singleData?.rating) ?? 0
+        ratingCount.text = "(" + String(((singleData?.reviewCount as? Int) ?? 0)) + ")"
+        offerPrice.text =  "₹" + String(((singleData?.price) ?? 0))
         cardImage.contentMode = .scaleAspectFill
         cardImage.layer.cornerRadius = 13
-        if singleData["image_url"] != nil && singleData["image_url"] as! String != "" {
-            cardImage.loadImage(urlString: (singleData["image_url"] as? String) ?? "" )
+        if (singleData?.addToFav == true) {
+            addToFavView.isHidden = true
+            topLeftIcon.isHidden = false
+        } else {
+            topLeftIcon.isHidden = true
+            addToFavView.isHidden = false
+        }
+        if singleData?.imageUrl != nil && singleData?.imageUrl != "" {
+            cardImage.loadImage(urlString: (singleData?.imageUrl as? String) ?? "" )
         }
     }
     func convertToInt(from value: Any?) -> Int? {
@@ -267,10 +288,10 @@ class WaterfallListCell: UICollectionViewCell {
         let components = description.components(separatedBy: "\n")
 
         for component in components {
-            if let boldRange = component.range(of: "**") { // Check for bold text marker
-                let boldText = String(component[..<boldRange.lowerBound])  // Extract bold text
-                let remainingText = String(component[boldRange.upperBound...]) // Extract remaining text
-                formattedDescription.append("\(boldText)\(remainingText)") // Append bold text and remaining text
+            if let boldRange = component.range(of: "**") {
+                let boldText = String(component[..<boldRange.lowerBound])
+                let remainingText = String(component[boldRange.upperBound...])
+                formattedDescription.append("\(boldText)\(remainingText)")
             } else {
                 formattedDescription.append("\(component)")
             }
@@ -278,5 +299,48 @@ class WaterfallListCell: UICollectionViewCell {
 
         return formattedDescription
     }
+    // asign gesture
+    func setUpGesture() {
+        var removeFromfavoriteGesture = UITapGestureRecognizer(target: self, action: #selector(handleRemoveTap(_:)))
+        topLeftIcon.isUserInteractionEnabled = true
+        removeFromfavoriteGesture.numberOfTapsRequired = 1
+        topLeftIcon.addGestureRecognizer(removeFromfavoriteGesture)
+        var addfavoriteGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        addToFavView.isUserInteractionEnabled = true
+        addfavoriteGesture.numberOfTapsRequired = 1
+        addToFavView.addGestureRecognizer(addfavoriteGesture)
+    }
+    // gesture function
+    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+            guard let view = gesture.view else { return }
+            
+        if let trackingString = view.accessibilityIdentifier {
+            if let uiApproach = view.accessibilityHint {
+                CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
+                let newValue = CoredataBase.shared.fetchCoreDataValues()
+                if localInstance != nil {
+                    localInstance?.updatedData(response: newValue ?? ApiResponse())
+                }
+                print("Tapped on view with tracking string: \(trackingString)")
+            } } else {
+                print("Tapped on view with no tracking string.")
+            }
+        }
+    @objc func handleRemoveTap(_ gesture: UITapGestureRecognizer) {
+            guard let view = gesture.view else { return }
+            
+            if let trackingString = view.accessibilityIdentifier {
+                if let uiApproach = view.accessibilityHint {
+                    CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
+                    let newValue = CoredataBase.shared.fetchCoreDataValues()
+                    if localInstance != nil {
+                        localInstance?.updatedData(response: newValue ?? ApiResponse())
+                    }
+                    print("Tapped on view with tracking string: \(trackingString)")
+                }
+            } else {
+                print("Tapped on view with no tracking string.")
+            }
+        }
 }
 

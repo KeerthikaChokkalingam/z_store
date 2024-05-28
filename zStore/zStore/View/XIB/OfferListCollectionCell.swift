@@ -17,7 +17,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
     weak var offerSelectedLabel: UILabel!
     weak var offerSelectedCard: UILabel!
     weak var offerCloseButton: UIButton!
-    var cardOffersArray: [[String:Any]] = []
+    var cardOffersArray: [CardOfferResponse]?
 
 
     override init(frame: CGRect) {
@@ -128,7 +128,6 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
             
             offerSelectedView.topAnchor.constraint(equalTo: topOffersCollectionView.bottomAnchor,constant: 10),
             offerSelectedView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-//            offerSelectedView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             offerSelectedView.heightAnchor.constraint(equalToConstant: 0),
             offerSelectedView.widthAnchor.constraint(equalToConstant: 285),
             
@@ -177,12 +176,12 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         }
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return cardOffersArray.count
+        return cardOffersArray?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OfferCardCell", for: indexPath) as! OfferCardCell
-        let currentData = self.cardOffersArray[indexPath.item]
+        let currentData = self.cardOffersArray?[indexPath.item]
         cell.updateCell(offerResponse: currentData)
         return cell
     }
@@ -196,8 +195,8 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         return 0
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let currentdata = self.cardOffersArray[indexPath.item]
-        offerSelectedCard.text = currentdata["card_name"] as? String
+        let currentdata = self.cardOffersArray?[indexPath.item]
+        offerSelectedCard.text = currentdata?.cardName as? String
         offerSelectedView.isHidden = false
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "increase"), object: nil)

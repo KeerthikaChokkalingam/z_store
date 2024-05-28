@@ -25,12 +25,10 @@ class ViewController: UIViewController {
     
     var viewModel: ContrllerViewModel?
     var searchTapped: Bool = false
-    var categoryArray: [[String:Any]] = []
-    var productsArray: [[String:Any]] = []
-    var cardOffersArray: [[String:Any]] = []
     var isLinearLayout: Bool = false
     var offerCellHeight: CGFloat = 0
     var selectedCategoryID: String = "100023"
+    var uiMappingValue: ApiResponse?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,18 +68,10 @@ class ViewController: UIViewController {
         }
     }
     func apiCall() {
-        viewModel?.fetchCategoriesProductsAndOffers(completion: { result in
+        viewModel?.checkData(completion: { result in
             switch result {
             case .success(let apiResponse):
-                if let categoryArray = apiResponse["category"] {
-                    self.categoryArray = categoryArray as! [[String : Any]]
-                }
-                if let productsArray = apiResponse["products"] {
-                    self.productsArray = productsArray as! [[String : Any]]
-                }
-                if let productsArray = apiResponse["card_offers"] {
-                    self.cardOffersArray = productsArray as! [[String : Any]]
-                }
+                self.uiMappingValue = apiResponse
                 self.setUpDelegate()
             case .failure(let error):
                 print("Failed to fetch data: \(error.localizedDescription)")
@@ -126,17 +116,17 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == topCategoriesCollectionView {
-            return categoryArray.count
+            return uiMappingValue?.category?.count ?? 0
         } else {
             if section == 0 {
-                if (self.cardOffersArray.count > 0) {
+                if ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                     return 1
                 } else {
                     return 0
                 }
             } else {
-                let selectedcategoryFilter = productsArray.filter{$0["category_id"] as! String == selectedCategoryID}
-                return selectedcategoryFilter.count
+                let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
+                return selectedcategoryFilter?.count ?? 0
             }
         }
     }
@@ -144,9 +134,9 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == topCategoriesCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
-            let currentdata = categoryArray[indexPath.row]
-            cell.categoryLabel.text = currentdata["name"] as? String
-            cell.categoryLabel.accessibilityIdentifier = currentdata["name"] as? String
+            let currentdata = self.uiMappingValue?.category?[indexPath.row]
+            cell.categoryLabel.text = currentdata?.name
+            cell.categoryLabel.accessibilityIdentifier = currentdata?.name
             if indexPath.row == 0 {
                 cell.categoryView.backgroundColor =  UIColor(red: 254/255, green: 242/255, blue: 235/255, alpha: 1)
                 cell.categoryView.layer.borderColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1).cgColor
@@ -159,15 +149,18 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
             viewModel?.calculateCellFrame(index: indexPath.row, cell: cell)
             return cell
         } else {
-            if indexPath.section == 0 && (self.cardOffersArray.count > 0) {
+            if indexPath.section == 0 && ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OfferListCollectionCell", for: indexPath) as? OfferListCollectionCell else {return UICollectionViewCell()}
                 cell.backgroundColor = UIColor.yellow
-                cell.cardOffersArray = self.cardOffersArray
+                if let cardOffers = self.uiMappingValue?.cardOffers {
+                    cell.cardOffersArray = cardOffers
+                }
                 return cell
             } else {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as? WaterfallListCell else {return UICollectionViewCell()}
-                let selectedcategoryFilter = productsArray.filter{$0["category_id"] as! String == selectedCategoryID}
-                let currentData = selectedcategoryFilter[indexPath.row]
+                let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
+                let currentData = selectedcategoryFilter?[indexPath.row]
+                cell.localInstance = self
                 cell.updateUI(singleData: currentData)
                 return cell
             }
@@ -176,15 +169,15 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == topCategoriesCollectionView {
-            let currentdata = categoryArray[indexPath.row]
-            let labelSize = (currentdata["name"] as! String).boundingRect(with: CGSize(width: 0, height: 32),
+            let currentdata = self.uiMappingValue?.category?[indexPath.row]
+            let labelSize = (currentdata?.name as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
                                                                           options: [.usesLineFragmentOrigin, .usesFontLeading],
                                                                           attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
                                                                           context: nil).size
-            return CGSize(width: labelSize.width + 30, height: 32)
+            return CGSize(width: labelSize!.width + 30, height: 32)
         } else {
             if indexPath.section == 0 {
-                if (self.cardOffersArray.count > 0) {
+                if ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                     return CGSize(width: 390, height: 186 + offerCellHeight)
                 } else {
                     return CGSize()
@@ -193,11 +186,11 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as! WaterfallListCell
                     let cellWidth = (collectionView.frame.width / 2) // Adjust for padding
 
-                    let productName = productsArray[indexPath.row]["name"] as? String ?? ""
+                let productName = self.uiMappingValue?.products?[indexPath.row].name as? String ?? ""
                     let nameLabelSize = CGSize(width: cellWidth - 20, height: CGFloat.greatestFiniteMagnitude)
                     let nameLabelRect = productName.boundingRect(with: nameLabelSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20)], context: nil)
                     
-                    let productDescription = productsArray[indexPath.row]["description"] as? String ?? ""
+                let productDescription = self.uiMappingValue?.products?[indexPath.row].description as? String ?? ""
                     let deliveryLabelSize = CGSize(width: cellWidth - 20, height: CGFloat.greatestFiniteMagnitude)
                     let deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
 
@@ -226,9 +219,9 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == topCategoriesCollectionView {
-            let currentdata = categoryArray[indexPath.row]
-            selectedCategoryID = currentdata["id"] as? String ?? "100023"
-            let layoutValue = (currentdata["layout"] as? String) ?? ""
+            let currentdata = self.uiMappingValue?.category?[indexPath.row]
+            selectedCategoryID = currentdata?.id as? String ?? "100023"
+            let layoutValue = (currentdata?.layout as? String) ?? ""
             isLinearLayout = (layoutValue == "waterfall") ? false : true
             linearLayout.isHidden = (isLinearLayout == true) ? false : true
             waterfalllayout.isHidden = (isLinearLayout == true) ? true : false
@@ -267,32 +260,34 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            if (self.cardOffersArray.count > 0) {
+            if ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                 return 1
             } else {
                 return 0
             }
         } else {
-            let selectedcategoryFilter = productsArray.filter{$0["category_id"] as! String == selectedCategoryID}
-            return selectedcategoryFilter.count
+            let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
+            return selectedcategoryFilter?.count ?? 0
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        if indexPath.section == 0 && (self.cardOffersArray.count > 0){
+        if indexPath.section == 0 && ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0){
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "OffersListCell")  as? OffersListCell else {
                 return UITableViewCell()
             }
             cell.selectionStyle = .none
-            cell.cardOffersArray = self.cardOffersArray
+            if let cardOffers = self.uiMappingValue?.cardOffers {
+                cell.cardOffersArray = cardOffers
+            }
             return cell
         } else {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "LinearListCell") as? LinearListCell  else {
                 return UITableViewCell()
             }
-            let selectedcategoryFilter = productsArray.filter{$0["category_id"] as! String == selectedCategoryID}
-            let currentData = selectedcategoryFilter[indexPath.row]
+            let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
+            let currentData = selectedcategoryFilter?[indexPath.row]
             cell.selectionStyle = .none
             cell.updateCell(listVlaue: currentData)
             return cell
@@ -301,7 +296,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if (indexPath.section == 0) {
-            if (self.cardOffersArray.count > 0) {
+            if ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                 return 186 + offerCellHeight
             } else {
                 return 0
@@ -310,5 +305,15 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             return 179
         }
     }
+    
+}
+extension ViewController: updateTable {
+    func updatedData(response: ApiResponse) {
+        self.uiMappingValue = response
+        DispatchQueue.main.async {
+            self.waterfalllayout.reloadData()
+        }
+    }
+    
     
 }
