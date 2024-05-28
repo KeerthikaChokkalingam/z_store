@@ -26,10 +26,12 @@ class ViewController: UIViewController {
     var viewModel: ContrllerViewModel?
     var searchTapped: Bool = false
     var isLinearLayout: Bool = false
+    var reloadOffersCell: Bool = false
     var offerCellHeight: CGFloat = 0
     var selectedCategoryID: String = "100023"
     var uiMappingValue: ApiResponse?
-    
+    var copySearchBase: ApiResponse?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
@@ -72,6 +74,7 @@ class ViewController: UIViewController {
             switch result {
             case .success(let apiResponse):
                 self.uiMappingValue = apiResponse
+                self.copySearchBase = apiResponse
                 self.setUpDelegate()
             case .failure(let error):
                 print("Failed to fetch data: \(error.localizedDescription)")
@@ -92,6 +95,19 @@ class ViewController: UIViewController {
         topSearchViewView.isHidden = true
         searchCancelButton.isHidden = true
         searchField.isHidden = true
+        self.searchField.text = ""
+        self.searchField.resignFirstResponder()
+        self.view.endEditing(true)
+        
+        self.uiMappingValue = self.copySearchBase
+        if isLinearLayout == true {
+            self.reloadOffersCell = true
+            self.linearLayout.reloadData()
+        } else {
+            self.reloadOffersCell = true
+            self.waterfalllayout.reloadData()
+        }
+        
     }
     @objc func offerCellHeight(_ notification: Notification) {
         if notification.name.rawValue == "increase" {
@@ -152,6 +168,8 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
             if indexPath.section == 0 && ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OfferListCollectionCell", for: indexPath) as? OfferListCollectionCell else {return UICollectionViewCell()}
                 cell.backgroundColor = UIColor.yellow
+                cell.isSearchApply = reloadOffersCell
+                cell.searchApply()
                 if let cardOffers = self.uiMappingValue?.cardOffers {
                     cell.cardOffersArray = cardOffers
                 }
@@ -277,6 +295,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "OffersListCell")  as? OffersListCell else {
                 return UITableViewCell()
             }
+            cell.isSearchApply = reloadOffersCell
+            cell.searchApply()
             cell.selectionStyle = .none
             if let cardOffers = self.uiMappingValue?.cardOffers {
                 cell.cardOffersArray = cardOffers
@@ -315,5 +335,44 @@ extension ViewController: updateTable {
         }
     }
     
-    
+}
+
+extension ViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        self.view.endEditing(true)
+        return true
+    }
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // Get the updated text
+        let currentText = textField.text ?? ""
+        guard let stringRange = Range(range, in: currentText) else {
+            return false
+        }
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+        
+        // Perform the search
+        if updatedText.isEmpty {
+            self.uiMappingValue = self.copySearchBase
+        } else {
+            let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
+
+            let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }
+            let offerData = self.copySearchBase?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
+            
+            self.uiMappingValue?.products = productData
+            self.uiMappingValue?.cardOffers = offerData
+        }
+        
+        if isLinearLayout == true {
+            self.reloadOffersCell = true
+            self.linearLayout.reloadData()
+        } else {
+            self.reloadOffersCell = true
+            self.waterfalllayout.reloadData()
+        }
+        
+        return true
+    }
+
 }

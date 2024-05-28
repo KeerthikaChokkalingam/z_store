@@ -130,6 +130,8 @@ extension ViewController {
         self.linearLayout = linearLayout
         self.contentView.addSubview(linearLayout)
         
+        self.searchField.delegate = self
+        self.searchField.text = ""
         
     }
     

@@ -18,6 +18,7 @@ class OffersListCell: UITableViewCell, UICollectionViewDelegate, UICollectionVie
     weak var offerSelectedCard: UILabel!
     weak var offerCloseButton: UIButton!
     var cardOffersArray: [CardOfferResponse]?
+    var isSearchApply: Bool = false
 
     override init(style: CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -149,6 +150,11 @@ class OffersListCell: UITableViewCell, UICollectionViewDelegate, UICollectionVie
         topOffersCollectionView.register(OfferCardCell.self, forCellWithReuseIdentifier: "OfferCardCell")
         offerCloseButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
 
+    }
+    func searchApply () {
+        if isSearchApply {
+            self.topOffersCollectionView.reloadData()
+        }
     }
     @objc func closeButtonTapped() {
         offerSelectedView.isHidden = true

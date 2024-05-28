@@ -23,8 +23,6 @@ class LinearListCell: UITableViewCell {
     weak var deliveryLabel: UILabel!
     weak var availableColorView: UIView!
     
-    weak var colorDisplayView: ColorDisplayView!
-
     var listValue = [String:Any]()
 
     override init(style: CellStyle, reuseIdentifier: String?) {
@@ -36,9 +34,9 @@ class LinearListCell: UITableViewCell {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    func configureCell(with colors: [String]) {
-        colorDisplayView.configure(with: colors)
-    }
+//    func configureCell(with colors: [String]) {
+//        colorDisplayView.configure(with: colors)
+//    }
     func setupUI() {
             let backView = UIView()
             backView.translatesAutoresizingMaskIntoConstraints = false
@@ -150,11 +148,11 @@ class LinearListCell: UITableViewCell {
         self.availableColorView = availableColorView
         self.backView.addSubview(availableColorView)
         
-        let colorDisplayView = ColorDisplayView()
-        colorDisplayView.translatesAutoresizingMaskIntoConstraints = false
-        colorDisplayView.backgroundColor = UIColor.yellow
-        self.colorDisplayView = colorDisplayView
-        self.availableColorView.addSubview(colorDisplayView)
+//        let colorDisplayView = ColorDisplayView()
+//        colorDisplayView.translatesAutoresizingMaskIntoConstraints = false
+//        colorDisplayView.backgroundColor = UIColor.yellow
+//        self.colorDisplayView = colorDisplayView
+//        self.availableColorView.addSubview(colorDisplayView)
         
         }
         
@@ -217,10 +215,10 @@ class LinearListCell: UITableViewCell {
                 availableColorView.trailingAnchor.constraint(equalTo: priceView.leadingAnchor),
                 availableColorView.heightAnchor.constraint(equalToConstant: 28),
                 
-                colorDisplayView.topAnchor.constraint(equalTo: availableColorView.topAnchor),
-                colorDisplayView.leadingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
-                colorDisplayView.trailingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
-                colorDisplayView.heightAnchor.constraint(equalToConstant: 28),
+//                colorDisplayView.topAnchor.constraint(equalTo: availableColorView.topAnchor),
+//                colorDisplayView.leadingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
+//                colorDisplayView.trailingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
+//                colorDisplayView.heightAnchor.constraint(equalToConstant: 28),
                 
             ])
         }
@@ -231,7 +229,7 @@ class LinearListCell: UITableViewCell {
         deliveryLabel.text = formattedText 
         deliveryLabel.font = deliveryLabel.font.withSize(deliveryLabel.font.pointSize)
         
-        configureCell(with: listVlaue?.colors as? [String] ?? [])
+//        configureCell(with: listVlaue?.colors as? [String] ?? [])
 
         deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
         ratingLabel.text = convertToString(from: listVlaue?.rating) ?? ""
