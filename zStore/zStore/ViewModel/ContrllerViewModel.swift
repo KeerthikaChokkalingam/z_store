@@ -25,7 +25,6 @@ class ContrllerViewModel: NSObject {
             fetchCategoriesProductsAndOffers(completion: { result in
                 switch result {
                 case .success(let apiresponse):
-                    print(apiresponse)
                     completion(.success(apiresponse))
                 case .failure(let error):
                     print("Failed to fetch data: \(error.localizedDescription)")

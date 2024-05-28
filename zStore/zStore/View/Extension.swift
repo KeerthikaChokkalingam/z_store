@@ -33,7 +33,12 @@ extension ViewController {
         let topTitlelabel = UILabel()
         topTitlelabel.text = "Zstore"
         topTitlelabel.textColor = UIColor.black
-        topTitlelabel.font = UIFont(name: "SF Pro Text", size: 30)
+        if let customFont = UIFont(name: "sfprotext", size: 30.0) {
+            topTitlelabel.font = customFont
+        } else {
+            topTitlelabel.font = UIFont.boldSystemFont(ofSize: 24.0)
+        }
+
         topTitlelabel.sizeToFit()
         topTitlelabel.translatesAutoresizingMaskIntoConstraints = false
         topTitlelabel.isHidden = false
@@ -116,7 +121,7 @@ extension ViewController {
         let waterfalllayout = UICollectionView(frame: .zero, collectionViewLayout: waterFallLayout)
         waterfalllayout.showsVerticalScrollIndicator = false
         waterfalllayout.translatesAutoresizingMaskIntoConstraints = false
-        waterfalllayout.backgroundColor = UIColor.brown
+//        waterfalllayout.backgroundColor = UIColor.brown
         waterfalllayout.isHidden = false
         self.waterfalllayout = waterfalllayout
         self.contentView.addSubview(waterfalllayout)
@@ -129,6 +134,20 @@ extension ViewController {
         linearLayout.isHidden = true
         self.linearLayout = linearLayout
         self.contentView.addSubview(linearLayout)
+        
+        let sortFloatingButton = UIButton()
+        sortFloatingButton.translatesAutoresizingMaskIntoConstraints = false
+        let sortImage = UIImage(named: "shape-4")
+        sortFloatingButton.setImage(sortImage, for: .normal)
+        sortFloatingButton.backgroundColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
+        sortFloatingButton.imageEdgeInsets = UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
+        sortFloatingButton.layer.cornerRadius = 25
+        sortFloatingButton.imageView?.contentMode = .scaleAspectFit
+        sortFloatingButton.translatesAutoresizingMaskIntoConstraints = false
+        sortFloatingButton.isHidden = false
+        self.sortFloatingButton = sortFloatingButton
+        self.backView.addSubview(sortFloatingButton)
+        self.backView.bringSubviewToFront(sortFloatingButton)
         
         self.searchField.delegate = self
         self.searchField.text = ""
@@ -203,6 +222,11 @@ extension ViewController {
             linearLayout.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
             linearLayout.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
             linearLayout.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor),
+            
+            sortFloatingButton.bottomAnchor.constraint(equalTo: self.backView.bottomAnchor, constant: -30),
+            sortFloatingButton.trailingAnchor.constraint(equalTo: self.backView.trailingAnchor, constant: -10),
+            sortFloatingButton.widthAnchor.constraint(equalToConstant: 50),
+            sortFloatingButton.heightAnchor.constraint(equalToConstant: 50)
            
         ])
     }

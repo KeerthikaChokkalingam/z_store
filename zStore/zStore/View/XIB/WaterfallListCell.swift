@@ -46,7 +46,7 @@ class WaterfallListCell: UICollectionViewCell {
         let backView = UIView()
         backView.translatesAutoresizingMaskIntoConstraints = false
         backView.layer.cornerRadius = 15
-        backView.backgroundColor = UIColor.red
+//        backView.backgroundColor = UIColor.red
         self.backView = backView
         contentView.addSubview(backView)
         

@@ -22,15 +22,18 @@ class ViewController: UIViewController {
     weak var contentView: UIView!
     weak var linearLayout: UITableView!
     weak var waterfalllayout: UICollectionView!
+    weak var sortFloatingButton: UIButton!
     
     var viewModel: ContrllerViewModel?
     var searchTapped: Bool = false
     var isLinearLayout: Bool = false
     var reloadOffersCell: Bool = false
+    var currentSort: String = "ratings"
     var offerCellHeight: CGFloat = 0
     var selectedCategoryID: String = "100023"
     var uiMappingValue: ApiResponse?
     var copySearchBase: ApiResponse?
+    var sortBase: ApiResponse?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +50,7 @@ class ViewController: UIViewController {
         viewModel = ContrllerViewModel()
         self.searchButton.addTarget(self, action: #selector(searchButtonAction(_:)), for: .touchUpInside)
         self.searchCancelButton.addTarget(self, action: #selector(cancelButtonAction(_:)), for: .touchUpInside)
+        self.sortFloatingButton.addTarget(self, action: #selector(showSortView(_:)), for: .touchUpInside)
         
         NotificationCenter.default.addObserver(self, selector: #selector(offerCellHeight(_:)), name: NSNotification.Name(rawValue: "increase"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(offerCellHeight(_:)), name: NSNotification.Name(rawValue: "decrease"), object: nil)
@@ -75,12 +79,38 @@ class ViewController: UIViewController {
             case .success(let apiResponse):
                 self.uiMappingValue = apiResponse
                 self.copySearchBase = apiResponse
-                self.setUpDelegate()
+                self.sortBase = apiResponse
+                let selectedcategoryFilter = apiResponse.products?.filter{$0.categoryId == self.selectedCategoryID}
+                let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+                self.uiMappingValue?.products = sortedProducts
+                DispatchQueue.main.async {
+                    self.setUpDelegate()
+                }
             case .failure(let error):
                 print("Failed to fetch data: \(error.localizedDescription)")
             }
         })
         
+    }
+    func ratingsSort(sortString: String) {
+        if sortString == "ratings" {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            self.uiMappingValue?.products = sortedProducts
+        } else {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            self.uiMappingValue?.products = sortedProducts
+        }
+        
+        if isLinearLayout == true {
+            linearLayout.delegate = self
+            linearLayout.dataSource = self
+            linearLayout.reloadData()
+        } else  {
+            waterfalllayout.reloadData()
+        }
+              
     }
     @objc func searchButtonAction(_ sender: UIButton) {
         searchTapped = true
@@ -108,6 +138,12 @@ class ViewController: UIViewController {
             self.waterfalllayout.reloadData()
         }
         
+    }
+    @objc func showSortView(_ sender: UIButton) {
+        let sortView = SortView(frame: CGRect(x: sender.frame.minX - 250, y: sender.frame.minY - 250, width: 250, height: 300))
+        sortView.backgroundColor = .white
+        sortView.delegate = self
+        view.addSubview(sortView)
     }
     @objc func offerCellHeight(_ notification: Notification) {
         if notification.name.rawValue == "increase" {
@@ -141,8 +177,7 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     return 0
                 }
             } else {
-                let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
-                return selectedcategoryFilter?.count ?? 0
+                return self.uiMappingValue?.products?.count ?? 0
             }
         }
     }
@@ -167,19 +202,23 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
         } else {
             if indexPath.section == 0 && ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OfferListCollectionCell", for: indexPath) as? OfferListCollectionCell else {return UICollectionViewCell()}
-                cell.backgroundColor = UIColor.yellow
+//                cell.backgroundColor = UIColor.yellow
                 cell.isSearchApply = reloadOffersCell
-                cell.searchApply()
+                if reloadOffersCell {
+                    cell.searchApply()
+                }
                 if let cardOffers = self.uiMappingValue?.cardOffers {
                     cell.cardOffersArray = cardOffers
                 }
                 return cell
             } else {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as? WaterfallListCell else {return UICollectionViewCell()}
-                let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
-                let currentData = selectedcategoryFilter?[indexPath.row]
+                
+                if (self.uiMappingValue?.products?.count ?? 0) > indexPath.row {
+                    let currentData = self.uiMappingValue?.products?[indexPath.row]
+                    cell.updateUI(singleData: currentData)
+                }
                 cell.localInstance = self
-                cell.updateUI(singleData: currentData)
                 return cell
             }
         }
@@ -243,15 +282,13 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
             isLinearLayout = (layoutValue == "waterfall") ? false : true
             linearLayout.isHidden = (isLinearLayout == true) ? false : true
             waterfalllayout.isHidden = (isLinearLayout == true) ? true : false
-            
-            if isLinearLayout == true {
-                linearLayout.delegate = self
-                linearLayout.dataSource = self
-                linearLayout.reloadData()
-            } else {
-                waterfalllayout.reloadData()
+            if searchField.text != "" {
+                searchField.text = ""
             }
-                        
+            
+            ratingsSort(sortString: currentSort)
+
+
             for cell in collectionView.visibleCells {
                 if let categoryCell = cell as? CategoryCell {
                     categoryCell.categoryView.layer.borderColor =  UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
@@ -284,8 +321,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 return 0
             }
         } else {
-            let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
-            return selectedcategoryFilter?.count ?? 0
+            return self.uiMappingValue?.products?.count ?? 0
         }
     }
     
@@ -296,7 +332,9 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 return UITableViewCell()
             }
             cell.isSearchApply = reloadOffersCell
-            cell.searchApply()
+            if reloadOffersCell {
+                cell.searchApply()
+            }
             cell.selectionStyle = .none
             if let cardOffers = self.uiMappingValue?.cardOffers {
                 cell.cardOffersArray = cardOffers
@@ -306,8 +344,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "LinearListCell") as? LinearListCell  else {
                 return UITableViewCell()
             }
-            let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
-            let currentData = selectedcategoryFilter?[indexPath.row]
+            let currentData = self.uiMappingValue?.products?[indexPath.row]
             cell.selectionStyle = .none
             cell.updateCell(listVlaue: currentData)
             return cell
@@ -352,16 +389,21 @@ extension ViewController: UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
         // Perform the search
-        if updatedText.isEmpty {
-            self.uiMappingValue = self.copySearchBase
+        if updatedText.isEmpty || updatedText == ""{
+            self.uiMappingValue = self.sortBase
         } else {
-            let selectedcategoryFilter = self.uiMappingValue?.products?.filter{$0.categoryId == selectedCategoryID}
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
 
             let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }
             let offerData = self.copySearchBase?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
             
-            self.uiMappingValue?.products = productData
-            self.uiMappingValue?.cardOffers = offerData
+            if (productData?.count == 0 || productData == nil) && (offerData?.count == 0 || offerData == nil){
+                self.uiMappingValue = ApiResponse()
+            } else {
+                self.uiMappingValue?.products = productData
+                self.uiMappingValue?.cardOffers = offerData
+            }
+            
         }
         
         if isLinearLayout == true {
@@ -375,4 +417,35 @@ extension ViewController: UITextFieldDelegate {
         return true
     }
 
+}
+extension ViewController: SortViewDelegate {
+    func didSelectSortOption(_ option: String) {
+        currentSort = option
+        if option == "ratings" {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            self.uiMappingValue?.products = sortedProducts
+            
+            if isLinearLayout == true {
+                self.reloadOffersCell = true
+                self.linearLayout.reloadData()
+            } else {
+                self.reloadOffersCell = true
+                self.waterfalllayout.reloadData()
+            }
+        } else {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            self.uiMappingValue?.products = sortedProducts
+            
+            if isLinearLayout == true {
+                self.reloadOffersCell = true
+                self.linearLayout.reloadData()
+            } else {
+                self.reloadOffersCell = true
+                self.waterfalllayout.reloadData()
+            }
+        }
+    }
+    
 }

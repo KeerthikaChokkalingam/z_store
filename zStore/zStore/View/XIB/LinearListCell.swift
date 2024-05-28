@@ -41,7 +41,7 @@ class LinearListCell: UITableViewCell {
             let backView = UIView()
             backView.translatesAutoresizingMaskIntoConstraints = false
             backView.layer.cornerRadius = 15
-            backView.backgroundColor = UIColor.brown
+//            backView.backgroundColor = UIColor.brown
             self.backView = backView
             contentView.addSubview(backView)
             
@@ -144,7 +144,7 @@ class LinearListCell: UITableViewCell {
         
         let availableColorView = UIView()
         availableColorView.translatesAutoresizingMaskIntoConstraints = false
-        availableColorView.backgroundColor = UIColor.yellow
+//        availableColorView.backgroundColor = UIColor.yellow
         self.availableColorView = availableColorView
         self.backView.addSubview(availableColorView)
         
@@ -235,7 +235,7 @@ class LinearListCell: UITableViewCell {
         ratingLabel.text = convertToString(from: listVlaue?.rating) ?? ""
         ratingView.rating = convertToInt(from: listVlaue?.rating) ?? 0
         ratingCount.text = "(" + String(((listVlaue?.reviewCount as? Int) ?? 0)) + ")"
-        offerPrice.text =  "₹" + String(((listVlaue?.price as? Int) ?? 0))
+        offerPrice.text =  "₹" + String(((listVlaue?.price as? Double) ?? 0))
         cardImage.contentMode = .scaleAspectFill
         cardImage.layer.cornerRadius = 13
         if listVlaue?.imageUrl != nil && listVlaue?.imageUrl != "" {

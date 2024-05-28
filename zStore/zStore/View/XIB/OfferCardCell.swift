@@ -32,7 +32,7 @@ class OfferCardCell: UICollectionViewCell {
         let backView = UIView()
         backView.translatesAutoresizingMaskIntoConstraints = false
         backView.layer.cornerRadius = 15
-        backView.backgroundColor = .yellow
+//        backView.backgroundColor = .yellow
         self.backView = backView
         contentView.addSubview(backView)
         
@@ -40,7 +40,7 @@ class OfferCardCell: UICollectionViewCell {
         cardname.translatesAutoresizingMaskIntoConstraints = false
         cardname.font = UIFont(name: "SF Pro Text", size: 16)
         cardname.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-        cardname.textColor = .red
+//        cardname.textColor = .red
         cardname.sizeToFit()
         self.cardname = cardname
         self.backView.addSubview(cardname)
@@ -49,7 +49,7 @@ class OfferCardCell: UICollectionViewCell {
         offerDesc.translatesAutoresizingMaskIntoConstraints = false
         offerDesc.font = UIFont(name: "SF Pro Text", size: 14)
         offerDesc.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-        offerDesc.textColor = .red
+//        offerDesc.textColor = .red
         offerDesc.numberOfLines = 0
         self.offerDesc = offerDesc
         self.backView.addSubview(offerDesc)
