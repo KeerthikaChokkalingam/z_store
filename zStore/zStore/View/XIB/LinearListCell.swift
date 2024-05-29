@@ -35,14 +35,10 @@ class LinearListCell: UITableViewCell {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-//    func configureCell(with colors: [String]) {
-//        colorDisplayView.configure(with: colors)
-//    }
     func setupUI() {
             let backView = UIView()
             backView.translatesAutoresizingMaskIntoConstraints = false
             backView.layer.cornerRadius = 15
-//            backView.backgroundColor = UIColor.brown
             self.backView = backView
             contentView.addSubview(backView)
             
@@ -216,10 +212,6 @@ class LinearListCell: UITableViewCell {
                 
                 
                 circleView.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
-//                colorDisplayView.topAnchor.constraint(equalTo: availableColorView.topAnchor),
-//                colorDisplayView.leadingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
-//                colorDisplayView.trailingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
-//                colorDisplayView.heightAnchor.constraint(equalToConstant: 28),
                 
             ])
         }
@@ -230,8 +222,6 @@ class LinearListCell: UITableViewCell {
         deliveryLabel.text = formattedText 
         deliveryLabel.font = deliveryLabel.font.withSize(deliveryLabel.font.pointSize)
         
-//        configureCell(with: listVlaue?.colors as? [String] ?? [])
-
         deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
         ratingLabel.text = convertToString(from: listVlaue?.rating) ?? ""
         ratingView.rating = convertToInt(from: listVlaue?.rating) ?? 0

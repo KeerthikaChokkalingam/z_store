@@ -17,20 +17,14 @@ class ContrllerViewModel: NSObject {
     
     
     func checkData(completion: @escaping (Result<ApiResponse, Error>) -> Void) {
-        if CoredataBase.shared.checkIfEntityExists(entityName: "Zstore") {
-            print("already Exists")
-            let fetchValue = CoredataBase.shared.fetchCoreDataValues()
-            completion(.success(fetchValue ?? ApiResponse()))
-        } else {
-            fetchCategoriesProductsAndOffers(completion: { result in
-                switch result {
-                case .success(let apiresponse):
-                    completion(.success(apiresponse))
-                case .failure(let error):
-                    print("Failed to fetch data: \(error.localizedDescription)")
-                }
-            })
-        }
+        fetchCategoriesProductsAndOffers(completion: { result in
+            switch result {
+            case .success(let apiresponse):
+                completion(.success(apiresponse))
+            case .failure:
+                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
+            }
+        })
     }
     
     func fetchCategoriesProductsAndOffers(completion: @escaping (Result<ApiResponse, Error>) -> Void) {
@@ -69,12 +63,46 @@ class ContrllerViewModel: NSObject {
                         
                         let jsonData = try JSONSerialization.data(withJSONObject: jsonDictionary, options: [])
                         
-                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
-                        
-                        if let jsonString = String(data: jsonData, encoding: .utf8) {
-                            CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
+                        if CoredataBase.shared.checkIfEntityExists(entityName: "Zstore") {
+                            let jsonString = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
+                            guard let coredataValues = jsonString.data(using: .utf8) else {
+                                return
+                            }
+                            
+                            do {
+                                if let json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any],
+                                   let json2 = try JSONSerialization.jsonObject(with: coredataValues, options: []) as? [AnyHashable: Any] {
+                                    
+                                    if NSDictionary(dictionary: json1).isEqual(to: json2) {
+                                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: coredataValues)
+                                        
+                                        if let jsonString = String(data: jsonData, encoding: .utf8) {
+                                            CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
+                                        }
+                                        completion(.success(apiResponse))
+                                    } else {
+                                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
+                                        
+                                        if let jsonString = String(data: jsonData, encoding: .utf8) {
+                                            CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
+                                        }
+                                        completion(.success(apiResponse))
+                                    }
+                                } else {
+                                    completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
+                                }
+                            } catch {
+                                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
+                            }
+                        } else {
+                            
+                            let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
+                            
+                            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                                CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
+                            }
+                            completion(.success(apiResponse))
                         }
-                        completion(.success(apiResponse))
                     } else {
                         completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
                     }
@@ -147,7 +175,7 @@ class ContrllerViewModel: NSObject {
     }
     
     // MARK: Dynamic Waterfall Cell Layout
-
+    
     func calculateWaterFallCellFrame(index: Int, cell: UICollectionViewCell, updatedheight: CGFloat, updatedWidth: CGFloat) -> CGRect {
         switch index {
         case 0:

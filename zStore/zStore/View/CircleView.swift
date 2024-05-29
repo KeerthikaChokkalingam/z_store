@@ -45,9 +45,6 @@ class CircleView: UIView {
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.heightAnchor.constraint(equalToConstant: 25),
-//            stackView.widthAnchor.constraint(equalToConstant: 150)
-//            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-//            stackView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         for i in 0..<colorsList.count {

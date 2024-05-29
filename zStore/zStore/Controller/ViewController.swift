@@ -261,59 +261,25 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     return CGSize(width: 390, height: 186 + offerCellHeight)
                 } else { return CGSize(width: 0, height: 0)}
             } else {
-//                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as! WaterfallListCell
-//                    let cellWidth = (collectionView.frame.width / 2) // Adjust for padding
-//
-//                let productName = (self.uiMappingValue?.products?[indexPath.row].name as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
-//                                                                              options: [.usesLineFragmentOrigin, .usesFontLeading],
-//                                                                              attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
-//                                                                              context: nil).size
-//                let productDescription = (self.uiMappingValue?.products?[indexPath.row].description as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
-//                                                                                                                       options: [.usesLineFragmentOrigin, .usesFontLeading],
-//                                                                                                                       attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
-//                                                                                                                       context: nil).size
-//                let totalHeight = 200 + Int(productName!.height) + 18 + 25 + Int(productDescription!.height) + 36 + 20 // additional padding
-//                let dynamicRect = (viewModel?.calculateWaterFallCellFrame(index: indexPath.row, cell: cell, updatedheight: totalHeight, updatedWidth:cellWidth))!
-//                cell.frame = dynamicRect
-//                return CGSize(width: (Int(self.view.frame.size.width) / 2) - 10, height: totalHeight)
-//                return CGSize(width: cellWidth - 10, height: 350)
-                
-                // Filter products based on selected category
                 let selectedcategoryFilter = self.uiMappingValue?.products?.filter { $0.categoryId == selectedCategoryID }
-                
-                // Fetch current item based on category selection and index path
                 let currentData = selectedcategoryFilter?[indexPath.row]
-                
-                // Calculate cell width based on number of cells per row and spacing
-//                let numberOfCellsPerRow: CGFloat = 2
-//                let cellWidth = (collectionView.frame.width - (numberOfCellsPerRow + 1) * cellSpacing) / numberOfCellsPerRow
-//                
-                // Calculate product name label height
                 let productName = currentData?.name ?? ""
                 let nameLabelFont = UIFont.systemFont(ofSize: 14)
                 let nameLabelLineHeight = nameLabelFont.lineHeight
                 let maxNameLabelHeight = nameLabelLineHeight * 4
-                
                 let nameLabelSize = CGSize(width:((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
                 var nameLabelRect = productName.boundingRect(with: nameLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: nameLabelFont], context: nil)
                 nameLabelRect.size.height = min(nameLabelRect.size.height, maxNameLabelHeight)
-                
-                // Calculate product description label height
                 let productDescription = currentData?.description ?? ""
                 let deliveryLabelFont = UIFont.boldSystemFont(ofSize: 12)
                 let deliveryLabelLineHeight = deliveryLabelFont.lineHeight
                 let maxDeliveryLabelHeight = deliveryLabelLineHeight * 3
-                
                 let deliveryLabelSize = CGSize(width: ((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
                 var deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: deliveryLabelFont], context: nil)
                 deliveryLabelRect.size.height = min(deliveryLabelRect.size.height, maxDeliveryLabelHeight)
-                
-                // Calculate total cell height
                 let totalHeight = 200 + nameLabelRect.height + 10 + 18 + 25 + deliveryLabelRect.height + 36 + 40
                 
                 return CGSize(width: (self.view.frame.size.width/2) - 10, height: totalHeight)
-                
-                
             }
         }
     }

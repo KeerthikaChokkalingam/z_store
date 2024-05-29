@@ -15,10 +15,20 @@ class CoredataBase: NSObject {
     private var managedContext: NSManagedObjectContext!
     
     override init() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        managedContext = appDelegate.persistentContainer.viewContext
-        
+        super.init()
+        initializeManagedContext()
     }
+    func initializeManagedContext() {
+            if Thread.isMainThread {
+                guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+                self.managedContext = appDelegate.persistentContainer.viewContext
+            } else {
+                DispatchQueue.main.sync {
+                    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+                    self.managedContext = appDelegate.persistentContainer.viewContext
+                }
+            }
+        }
     func createDataForString(entityName: String, key: String, value: String) {
         createData(entityName: entityName, key: key, value: value)
     }
