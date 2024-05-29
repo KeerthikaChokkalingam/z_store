@@ -16,7 +16,6 @@ class OfferCardCell: UICollectionViewCell {
     weak var cardImage: CustomImageView!
     
     var cardOffersArray = [String: Any]()
-    var gradientLayer: CAGradientLayer!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,11 +27,48 @@ class OfferCardCell: UICollectionViewCell {
         super.init(coder: aDecoder)
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        addGradientLayer()
+    }
+    func configureCell(data: CardOfferResponse?) {
+            addGradientLayer()
+        }
+
+        private func addGradientLayer() {
+            // Remove any existing gradient layers
+            if let sublayers = backView.layer.sublayers {
+                for layer in sublayers where layer is CAGradientLayer {
+                    layer.removeFromSuperlayer()
+                }
+            }
+            
+            let gradientLayer = createGradientLayer(bounds: backView.bounds)
+            backView.layer.insertSublayer(gradientLayer, at: 0)
+        }
+
+        private func createGradientLayer(bounds: CGRect) -> CAGradientLayer {
+            let gradientLayer = CAGradientLayer()
+            backView.layoutIfNeeded()
+            gradientLayer.frame = backView.bounds
+            gradientLayer.cornerRadius = 20
+            if backView.accessibilityIdentifier == "HDFC Bank Credit card" {
+                gradientLayer.colors = [UIColor(red: 26/255, green: 126/255, blue: 218/255, alpha: 1).cgColor, UIColor(red: 43/255, green: 209/255, blue: 255/255, alpha: 1).cgColor]
+            } else if backView.accessibilityIdentifier == "IFBC Bank Credit card" {
+                gradientLayer.colors = [UIColor(red: 255/255, green: 166/255, blue: 30/255, alpha: 1).cgColor, UIColor(red: 253/255, green: 82/255, blue: 97/255, alpha: 1).cgColor]
+            } else {
+                gradientLayer.colors = [UIColor(red: 240/255, green: 35/255, blue: 116/255, alpha: 1).cgColor, UIColor(red: 245/255, green: 26/255, blue: 236/255, alpha: 1).cgColor]
+            }
+            gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
+            gradientLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
+            return gradientLayer
+        }
+    
+    
     func setUpUI() {
         let backView = UIView()
         backView.translatesAutoresizingMaskIntoConstraints = false
         backView.layer.cornerRadius = 15
-//        backView.backgroundColor = .yellow
         self.backView = backView
         contentView.addSubview(backView)
         
@@ -40,7 +76,6 @@ class OfferCardCell: UICollectionViewCell {
         cardname.translatesAutoresizingMaskIntoConstraints = false
         cardname.font = UIFont(name: "SF Pro Text", size: 16)
         cardname.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-//        cardname.textColor = .red
         cardname.sizeToFit()
         self.cardname = cardname
         self.backView.addSubview(cardname)
@@ -49,7 +84,6 @@ class OfferCardCell: UICollectionViewCell {
         offerDesc.translatesAutoresizingMaskIntoConstraints = false
         offerDesc.font = UIFont(name: "SF Pro Text", size: 14)
         offerDesc.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-//        offerDesc.textColor = .red
         offerDesc.numberOfLines = 0
         self.offerDesc = offerDesc
         self.backView.addSubview(offerDesc)
@@ -67,10 +101,8 @@ class OfferCardCell: UICollectionViewCell {
         maxDiscount.translatesAutoresizingMaskIntoConstraints = false
         maxDiscount.font = UIFont(name: "SF Pro Text", size: 20)
         maxDiscount.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-        maxDiscount.textColor = .red
         self.maxDiscount = maxDiscount
         self.backView.addSubview(maxDiscount)
-        
     }
 
     func setUpConstraints() {
@@ -99,32 +131,18 @@ class OfferCardCell: UICollectionViewCell {
             maxDiscount.leadingAnchor.constraint(equalTo: cardname.leadingAnchor),
             maxDiscount.heightAnchor.constraint(equalToConstant: 50),
             maxDiscount.trailingAnchor.constraint(equalTo: cardImage.leadingAnchor, constant: 5),
-            
         ])
     }
 
-    func addGradient() {
-        gradientLayer = CAGradientLayer() // Initialize here
-        gradientLayer.colors = [
-            UIColor(red: 26/255, green: 126/255, blue: 218/255, alpha: 1), // Adjust alpha if desired
-            UIColor(red: 43/255, green: 209/255, blue: 255/255, alpha: 1), // Adjust alpha if desired
-        ]
-        gradientLayer.locations = [0.0, 1.0]
-        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
-        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
-        gradientLayer.frame = backView.bounds // Set frame after adding sublayer
-        backView.layer.insertSublayer(gradientLayer, at: 0) // Add before border (optional)
-        
-    }
-    
     func updateCell(offerResponse: CardOfferResponse?) {
+        backView.accessibilityIdentifier = offerResponse?.cardName
         cardname.text = offerResponse?.cardName as? String
         offerDesc.text = offerResponse?.offerDesc as? String
         maxDiscount.text = offerResponse?.maxDiscount as? String
         cardImage.contentMode = .scaleAspectFill
         cardImage.layer.cornerRadius = 13
-        if offerResponse?.imageUrl != nil && offerResponse?.imageUrl != "" {
-            cardImage.loadImage(urlString: (offerResponse?.imageUrl as? String) ?? "" )
+        if let imageUrl = offerResponse?.imageUrl, !imageUrl.isEmpty {
+            cardImage.loadImage(urlString: imageUrl)
         }
     }
 }

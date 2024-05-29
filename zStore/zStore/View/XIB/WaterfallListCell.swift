@@ -27,9 +27,8 @@ class WaterfallListCell: UICollectionViewCell {
     weak var topLeftIcon: UIImageView!
     weak var topLeftInnerIcon: UIImageView!
     weak var favILabel: UILabel!
-    
     var localInstance: updateTable?
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpUI()
@@ -46,7 +45,9 @@ class WaterfallListCell: UICollectionViewCell {
         let backView = UIView()
         backView.translatesAutoresizingMaskIntoConstraints = false
         backView.layer.cornerRadius = 15
-//        backView.backgroundColor = UIColor.red
+        backView.backgroundColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
+        backView.layer.borderWidth = 2
+        backView.layer.borderColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1).cgColor
         self.backView = backView
         contentView.addSubview(backView)
         
@@ -61,7 +62,8 @@ class WaterfallListCell: UICollectionViewCell {
         let namelabel = UILabel()
         namelabel.text = ""
         namelabel.textColor = UIColor.black
-        namelabel.font = UIFont(name: "SF Pro Text", size: 18)
+        namelabel.font = UIFont.systemFont(ofSize: 14)
+//        namelabel.font = UIFont(name: "SF Pro Text", size: 18)
         namelabel.translatesAutoresizingMaskIntoConstraints = false
         namelabel.isHidden = false
         namelabel.numberOfLines = 4
@@ -114,7 +116,8 @@ class WaterfallListCell: UICollectionViewCell {
         
         let deliveryLabel = UILabel()
         deliveryLabel.translatesAutoresizingMaskIntoConstraints = false
-        deliveryLabel.font = UIFont(name: "SF Pro Text", size: 8)
+        deliveryLabel.font = UIFont.boldSystemFont(ofSize: 14)
+//        deliveryLabel.font = UIFont(name: "SF Pro Text", size: 8)
         deliveryLabel.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
         deliveryLabel.numberOfLines = 3
         self.deliveryLabel = deliveryLabel
@@ -167,8 +170,8 @@ class WaterfallListCell: UICollectionViewCell {
     func setUpConstraints() {
         NSLayoutConstraint.activate([
             backView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            backView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            backView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            backView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            backView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             backView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             cardImage.topAnchor.constraint(equalTo: backView.topAnchor),
@@ -227,21 +230,21 @@ class WaterfallListCell: UICollectionViewCell {
             
             favILabel.centerYAnchor.constraint(equalTo: addToFavView.centerYAnchor),
             favILabel.leadingAnchor.constraint(equalTo: favIcon.trailingAnchor, constant: 5),
-            
         ])
     }
+
     func updateUI(singleData: ProductResponse?) {
         namelabel.text = singleData?.name as? String
         let formattedText =  formatProductDescription(singleData?.description as? String ?? "")
         deliveryLabel.text = formattedText // From step 1
-        deliveryLabel.font = deliveryLabel.font.withSize(deliveryLabel.font.pointSize)
+        deliveryLabel.font = deliveryLabel.font.withSize(12)
         
         topLeftIcon.accessibilityIdentifier = singleData?.id
         topLeftIcon.accessibilityHint = "false"
         addToFavView.accessibilityIdentifier = singleData?.id
         addToFavView.accessibilityHint = "true"
         
-        deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
+        deliveryLabel.font = UIFont.boldSystemFont(ofSize: 12)
         ratingLabel.text = convertToString(from: singleData?.rating) ?? ""
         ratingView.rating = convertToInt(from: singleData?.rating) ?? 0
         ratingCount.text = "(" + String(((singleData?.reviewCount as? Int) ?? 0)) + ")"

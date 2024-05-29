@@ -152,7 +152,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         topOffersCollectionView.dataSource = self
         topOffersCollectionView.register(OfferCardCell.self, forCellWithReuseIdentifier: "OfferCardCell")
         offerCloseButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
-
+        topOffersCollectionView.reloadData()
     }
     func searchApply () {
         if isSearchApply {
@@ -188,6 +188,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OfferCardCell", for: indexPath) as! OfferCardCell
         let currentData = self.cardOffersArray?[indexPath.item]
         cell.updateCell(offerResponse: currentData)
+        cell.configureCell(data: currentData)
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

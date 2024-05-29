@@ -23,6 +23,7 @@ class ViewController: UIViewController {
     weak var linearLayout: UITableView!
     weak var waterfalllayout: UICollectionView!
     weak var sortFloatingButton: UIButton!
+    weak var indicatorView: UIActivityIndicatorView!
     
     var viewModel: ContrllerViewModel?
     var searchTapped: Bool = false
@@ -34,6 +35,8 @@ class ViewController: UIViewController {
     var uiMappingValue: ApiResponse?
     var copySearchBase: ApiResponse?
     var sortBase: ApiResponse?
+    let cellSpacing: CGFloat = 10
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +61,6 @@ class ViewController: UIViewController {
 
     }
     func setUpDelegate() {
-        DispatchQueue.main.async {
             self.waterfalllayout.delegate = self
             self.waterfalllayout.dataSource = self
             self.waterfalllayout.register(OfferListCollectionCell.self, forCellWithReuseIdentifier: "OfferListCollectionCell")
@@ -71,9 +73,9 @@ class ViewController: UIViewController {
             self.topCategoriesCollectionView.dataSource = self
             self.topCategoriesCollectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
             self.topCategoriesCollectionView.reloadData()
-        }
     }
     func apiCall() {
+        showActivityIndicator()
         viewModel?.checkData(completion: { result in
             switch result {
             case .success(let apiResponse):
@@ -85,8 +87,12 @@ class ViewController: UIViewController {
                 self.uiMappingValue?.products = sortedProducts
                 DispatchQueue.main.async {
                     self.setUpDelegate()
+                    self.hideActivityIndicator()
                 }
             case .failure(let error):
+                DispatchQueue.main.async {
+                    self.hideActivityIndicator()
+                }
                 print("Failed to fetch data: \(error.localizedDescription)")
             }
         })
@@ -140,10 +146,29 @@ class ViewController: UIViewController {
         
     }
     @objc func showSortView(_ sender: UIButton) {
-        let sortView = SortView(frame: CGRect(x: sender.frame.minX - 250, y: sender.frame.minY - 250, width: 250, height: 300))
-        sortView.backgroundColor = .white
+        let temporaryView = UIView()
+        temporaryView.frame = self.view.bounds
+        temporaryView.backgroundColor = UIColor(red: 8/255, green: 21/255, blue: 36/255, alpha: 0.6)
+        let sortView = SortView(frame: CGRect(x: sender.frame.maxX - (250 + 30), y: sender.frame.minY - 157, width: 270, height: 167))
+        sortView.selectedValue = currentSort
+        sortView.clipsToBounds = true
+        sortView.layer.cornerRadius = 23
         sortView.delegate = self
-        view.addSubview(sortView)
+        temporaryView.tag = 30
+        temporaryView.addSubview(sortView)
+        temporaryView.bringSubviewToFront(sortView)
+        self.view.addSubview(temporaryView)
+        self.view.bringSubviewToFront(temporaryView)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(removeSortView(_:)))
+        tapGesture.delegate = self
+        temporaryView.isUserInteractionEnabled = true
+        temporaryView.addGestureRecognizer(tapGesture)
+    }
+    @objc func removeSortView(_ sender: UITapGestureRecognizer) {
+        if let backgroundView = self.view.viewWithTag(30) {
+            backgroundView.removeFromSuperview()
+        }
     }
     @objc func offerCellHeight(_ notification: Notification) {
         if notification.name.rawValue == "increase" {
@@ -202,7 +227,6 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
         } else {
             if indexPath.section == 0 && ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OfferListCollectionCell", for: indexPath) as? OfferListCollectionCell else {return UICollectionViewCell()}
-//                cell.backgroundColor = UIColor.yellow
                 cell.isSearchApply = reloadOffersCell
                 if reloadOffersCell {
                     cell.searchApply()
@@ -213,7 +237,6 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 return cell
             } else {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as? WaterfallListCell else {return UICollectionViewCell()}
-                
                 if (self.uiMappingValue?.products?.count ?? 0) > indexPath.row {
                     let currentData = self.uiMappingValue?.products?[indexPath.row]
                     cell.updateUI(singleData: currentData)
@@ -236,25 +259,61 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
             if indexPath.section == 0 {
                 if ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
                     return CGSize(width: 390, height: 186 + offerCellHeight)
-                } else {
-                    return CGSize()
-                }
+                } else { return CGSize(width: 0, height: 0)}
             } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as! WaterfallListCell
-                    let cellWidth = (collectionView.frame.width / 2) // Adjust for padding
-
-                let productName = self.uiMappingValue?.products?[indexPath.row].name as? String ?? ""
-                    let nameLabelSize = CGSize(width: cellWidth - 20, height: CGFloat.greatestFiniteMagnitude)
-                    let nameLabelRect = productName.boundingRect(with: nameLabelSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20)], context: nil)
-                    
-                let productDescription = self.uiMappingValue?.products?[indexPath.row].description as? String ?? ""
-                    let deliveryLabelSize = CGSize(width: cellWidth - 20, height: CGFloat.greatestFiniteMagnitude)
-                    let deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
-
-                    let totalHeight = 200 + nameLabelRect.height + 18 + 25 + deliveryLabelRect.height + 36 + 20 // additional padding
-                let dynamicRect = (viewModel?.calculateWaterFallCellFrame(index: indexPath.row, cell: cell, updatedheight: totalHeight, updatedWidth:cellWidth))!
-                cell.frame = dynamicRect
-                return CGSize(width: dynamicRect.width, height: dynamicRect.height)
+//                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WaterfallListCell", for: indexPath) as! WaterfallListCell
+//                    let cellWidth = (collectionView.frame.width / 2) // Adjust for padding
+//
+//                let productName = (self.uiMappingValue?.products?[indexPath.row].name as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
+//                                                                              options: [.usesLineFragmentOrigin, .usesFontLeading],
+//                                                                              attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
+//                                                                              context: nil).size
+//                let productDescription = (self.uiMappingValue?.products?[indexPath.row].description as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
+//                                                                                                                       options: [.usesLineFragmentOrigin, .usesFontLeading],
+//                                                                                                                       attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
+//                                                                                                                       context: nil).size
+//                let totalHeight = 200 + Int(productName!.height) + 18 + 25 + Int(productDescription!.height) + 36 + 20 // additional padding
+//                let dynamicRect = (viewModel?.calculateWaterFallCellFrame(index: indexPath.row, cell: cell, updatedheight: totalHeight, updatedWidth:cellWidth))!
+//                cell.frame = dynamicRect
+//                return CGSize(width: (Int(self.view.frame.size.width) / 2) - 10, height: totalHeight)
+//                return CGSize(width: cellWidth - 10, height: 350)
+                
+                // Filter products based on selected category
+                let selectedcategoryFilter = self.uiMappingValue?.products?.filter { $0.categoryId == selectedCategoryID }
+                
+                // Fetch current item based on category selection and index path
+                let currentData = selectedcategoryFilter?[indexPath.row]
+                
+                // Calculate cell width based on number of cells per row and spacing
+//                let numberOfCellsPerRow: CGFloat = 2
+//                let cellWidth = (collectionView.frame.width - (numberOfCellsPerRow + 1) * cellSpacing) / numberOfCellsPerRow
+//                
+                // Calculate product name label height
+                let productName = currentData?.name ?? ""
+                let nameLabelFont = UIFont.systemFont(ofSize: 14)
+                let nameLabelLineHeight = nameLabelFont.lineHeight
+                let maxNameLabelHeight = nameLabelLineHeight * 4
+                
+                let nameLabelSize = CGSize(width:((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
+                var nameLabelRect = productName.boundingRect(with: nameLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: nameLabelFont], context: nil)
+                nameLabelRect.size.height = min(nameLabelRect.size.height, maxNameLabelHeight)
+                
+                // Calculate product description label height
+                let productDescription = currentData?.description ?? ""
+                let deliveryLabelFont = UIFont.boldSystemFont(ofSize: 12)
+                let deliveryLabelLineHeight = deliveryLabelFont.lineHeight
+                let maxDeliveryLabelHeight = deliveryLabelLineHeight * 3
+                
+                let deliveryLabelSize = CGSize(width: ((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
+                var deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: deliveryLabelFont], context: nil)
+                deliveryLabelRect.size.height = min(deliveryLabelRect.size.height, maxDeliveryLabelHeight)
+                
+                // Calculate total cell height
+                let totalHeight = 200 + nameLabelRect.height + 10 + 18 + 25 + deliveryLabelRect.height + 36 + 40
+                
+                return CGSize(width: (self.view.frame.size.width/2) - 10, height: totalHeight)
+                
+                
             }
         }
     }
@@ -360,91 +419,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             }
         } else {
             return 179
-        }
-    }
-    
-}
-extension ViewController: updateTable {
-    func updatedData(response: ApiResponse) {
-        self.uiMappingValue = response
-        DispatchQueue.main.async {
-            self.waterfalllayout.reloadData()
-        }
-    }
-    
-}
-
-extension ViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        self.view.endEditing(true)
-        return true
-    }
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // Get the updated text
-        let currentText = textField.text ?? ""
-        guard let stringRange = Range(range, in: currentText) else {
-            return false
-        }
-        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-        
-        // Perform the search
-        if updatedText.isEmpty || updatedText == ""{
-            self.uiMappingValue = self.sortBase
-        } else {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
-
-            let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }
-            let offerData = self.copySearchBase?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
-            
-            if (productData?.count == 0 || productData == nil) && (offerData?.count == 0 || offerData == nil){
-                self.uiMappingValue = ApiResponse()
-            } else {
-                self.uiMappingValue?.products = productData
-                self.uiMappingValue?.cardOffers = offerData
-            }
-            
-        }
-        
-        if isLinearLayout == true {
-            self.reloadOffersCell = true
-            self.linearLayout.reloadData()
-        } else {
-            self.reloadOffersCell = true
-            self.waterfalllayout.reloadData()
-        }
-        
-        return true
-    }
-
-}
-extension ViewController: SortViewDelegate {
-    func didSelectSortOption(_ option: String) {
-        currentSort = option
-        if option == "ratings" {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            self.uiMappingValue?.products = sortedProducts
-            
-            if isLinearLayout == true {
-                self.reloadOffersCell = true
-                self.linearLayout.reloadData()
-            } else {
-                self.reloadOffersCell = true
-                self.waterfalllayout.reloadData()
-            }
-        } else {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            self.uiMappingValue?.products = sortedProducts
-            
-            if isLinearLayout == true {
-                self.reloadOffersCell = true
-                self.linearLayout.reloadData()
-            } else {
-                self.reloadOffersCell = true
-                self.waterfalllayout.reloadData()
-            }
         }
     }
     

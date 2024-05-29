@@ -22,6 +22,7 @@ class LinearListCell: UITableViewCell {
     weak var savingPrice: UIButton!
     weak var deliveryLabel: UILabel!
     weak var availableColorView: UIView!
+    weak var circleView: CircleView!
     
     var listValue = [String:Any]()
 
@@ -144,16 +145,14 @@ class LinearListCell: UITableViewCell {
         
         let availableColorView = UIView()
         availableColorView.translatesAutoresizingMaskIntoConstraints = false
-//        availableColorView.backgroundColor = UIColor.yellow
         self.availableColorView = availableColorView
         self.backView.addSubview(availableColorView)
         
-//        let colorDisplayView = ColorDisplayView()
-//        colorDisplayView.translatesAutoresizingMaskIntoConstraints = false
-//        colorDisplayView.backgroundColor = UIColor.yellow
-//        self.colorDisplayView = colorDisplayView
-//        self.availableColorView.addSubview(colorDisplayView)
-        
+        let colorDisplayView = CircleView()
+        colorDisplayView.translatesAutoresizingMaskIntoConstraints = false
+        colorDisplayView.backgroundColor = UIColor.yellow
+        self.circleView = colorDisplayView
+        self.availableColorView.addSubview(colorDisplayView)
         }
         
         func setUpConstraints() {
@@ -212,9 +211,11 @@ class LinearListCell: UITableViewCell {
                 
                 availableColorView.topAnchor.constraint(equalTo: deliveryLabel.bottomAnchor),
                 availableColorView.leadingAnchor.constraint(equalTo: priceView.leadingAnchor),
-                availableColorView.trailingAnchor.constraint(equalTo: priceView.leadingAnchor),
+                availableColorView.trailingAnchor.constraint(equalTo: priceView.trailingAnchor),
                 availableColorView.heightAnchor.constraint(equalToConstant: 28),
                 
+                
+                circleView.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
 //                colorDisplayView.topAnchor.constraint(equalTo: availableColorView.topAnchor),
 //                colorDisplayView.leadingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
 //                colorDisplayView.trailingAnchor.constraint(equalTo: availableColorView.leadingAnchor),
@@ -234,6 +235,12 @@ class LinearListCell: UITableViewCell {
         deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
         ratingLabel.text = convertToString(from: listVlaue?.rating) ?? ""
         ratingView.rating = convertToInt(from: listVlaue?.rating) ?? 0
+        if (listVlaue?.colors?.count ?? 0 ) > 0 {
+            availableColorView.isHidden = false
+            circleView.colorsList = (listVlaue?.colors)!
+        } else {
+            availableColorView.isHidden = true
+        }
         ratingCount.text = "(" + String(((listVlaue?.reviewCount as? Int) ?? 0)) + ")"
         offerPrice.text =  "₹" + String(((listVlaue?.price as? Double) ?? 0))
         cardImage.contentMode = .scaleAspectFill

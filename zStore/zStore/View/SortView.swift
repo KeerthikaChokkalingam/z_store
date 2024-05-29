@@ -7,8 +7,6 @@
 
 import UIKit
 
-import UIKit
-
 protocol SortViewDelegate: AnyObject {
     func didSelectSortOption(_ option: String)
 }
@@ -20,6 +18,12 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     var icons = ["shape-5", "shape-6"]
     var selectedIndexPath: IndexPath?
     weak var delegate: SortViewDelegate?
+    
+    var selectedValue: String = "ratings" {
+        didSet {
+            selectDefaultOption()
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -35,11 +39,13 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     private func setupTableView() {
         addSubview(tableView)
-        backgroundColor = UIColor.white
         
-        tableView.backgroundColor = UIColor.lightGray
+        tableView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1)
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.separatorStyle = .singleLine
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "CustomCell")
         tableView.tableFooterView = UIView()
         
@@ -53,10 +59,12 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     private func selectDefaultOption() {
-        selectedIndexPath = IndexPath(row: 0, section: 0)
-        tableView.reloadData()
-        if delegate != nil {
-            delegate?.didSelectSortOption(items[0])  
+        if let index = items.firstIndex(of: selectedValue) {
+            selectedIndexPath = IndexPath(row: index, section: 0)
+            tableView.reloadData()
+            if delegate != nil {
+                delegate?.didSelectSortOption(items[index])
+            }
         }
     }
     
@@ -97,13 +105,15 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView()
-        headerView.backgroundColor = .lightGray
+        headerView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1)
         
         let label = UILabel()
-        label.text = "Sort Options"
+        label.text = "Filter Order: From Top to Bottom"
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont(name: "SF Pro Text", size: 11)
+        label.sizeToFit()
+        label.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
         headerView.addSubview(label)
-        label.backgroundColor = UIColor.lightGray
         NSLayoutConstraint.activate([
             label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
             label.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
@@ -113,7 +123,7 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 20
+        return 37
     }
 }
 
@@ -135,12 +145,15 @@ class CustomTableViewCell: UITableViewCell {
     
     private func setupViews() {
         // Configure titleLabel
+        contentView.backgroundColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.textColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
         contentView.addSubview(titleLabel)
         
         // Configure radioButton
         radioButton.translatesAutoresizingMaskIntoConstraints = false
         radioButton.setImage(UIImage(systemName: "circle"), for: .normal)
+        radioButton.tintColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
         radioButton.setImage(UIImage(systemName: "largecircle.fill.circle"), for: .selected)
         radioButton.isUserInteractionEnabled = false
         

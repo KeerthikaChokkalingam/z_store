@@ -14,6 +14,7 @@
 		7F38C1A12C04D12B00512C79 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F38C1A02C04D12B00512C79 /* Model.swift */; };
 		7F38C1A32C04D1C000512C79 /* CoredataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F38C1A22C04D1C000512C79 /* CoredataBase.swift */; };
 		7F49D6CC2C05D4400011E38D /* SortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F49D6CB2C05D4400011E38D /* SortView.swift */; };
+		7FD9D4FD2C07220900EDE122 /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FD9D4FC2C07220900EDE122 /* CircleView.swift */; };
 		7FE1C8F32C0218C800D90450 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE1C8F22C0218C800D90450 /* AppDelegate.swift */; };
 		7FE1C8F52C0218C800D90450 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE1C8F42C0218C800D90450 /* SceneDelegate.swift */; };
 		7FE1C8F72C0218C800D90450 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE1C8F62C0218C800D90450 /* ViewController.swift */; };
@@ -56,6 +57,7 @@
 		7F38C1A02C04D12B00512C79 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		7F38C1A22C04D1C000512C79 /* CoredataBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoredataBase.swift; sourceTree = "<group>"; };
 		7F49D6CB2C05D4400011E38D /* SortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortView.swift; sourceTree = "<group>"; };
+		7FD9D4FC2C07220900EDE122 /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
 		7FE1C8EF2C0218C800D90450 /* zStore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zStore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FE1C8F22C0218C800D90450 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7FE1C8F42C0218C800D90450 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -172,6 +174,7 @@
 				7F2FF9932C03339400C4C500 /* CustomImageView.swift */,
 				7F2FF9952C0342F500C4C500 /* RatingView.swift */,
 				7F49D6CB2C05D4400011E38D /* SortView.swift */,
+				7FD9D4FC2C07220900EDE122 /* CircleView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -336,6 +339,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7FD9D4FD2C07220900EDE122 /* CircleView.swift in Sources */,
 				7F2FF99C2C03862900C4C500 /* WaterfallListCell.swift in Sources */,
 				7FE1C9392C027B1D00D90450 /* OffersListCell.swift in Sources */,
 				7F49D6CC2C05D4400011E38D /* SortView.swift in Sources */,
@@ -535,6 +539,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -564,6 +569,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

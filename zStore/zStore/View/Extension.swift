@@ -33,7 +33,7 @@ extension ViewController {
         let topTitlelabel = UILabel()
         topTitlelabel.text = "Zstore"
         topTitlelabel.textColor = UIColor.black
-        if let customFont = UIFont(name: "sfprotext", size: 30.0) {
+        if let customFont = UIFont(name: "SF Pro Text", size: 30.0) {
             topTitlelabel.font = customFont
         } else {
             topTitlelabel.font = UIFont.boldSystemFont(ofSize: 24.0)
@@ -115,13 +115,14 @@ extension ViewController {
         self.backView.addSubview(contentView)
         
         let waterFallLayout = UICollectionViewFlowLayout()
+        waterFallLayout.minimumInteritemSpacing = 2
+        waterFallLayout.minimumLineSpacing = 4
         waterFallLayout.scrollDirection = .vertical
-        waterFallLayout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        waterFallLayout.sectionInset = UIEdgeInsets(top: 0, left: 2, bottom: 0, right: 2)
         
         let waterfalllayout = UICollectionView(frame: .zero, collectionViewLayout: waterFallLayout)
         waterfalllayout.showsVerticalScrollIndicator = false
         waterfalllayout.translatesAutoresizingMaskIntoConstraints = false
-//        waterfalllayout.backgroundColor = UIColor.brown
         waterfalllayout.isHidden = false
         self.waterfalllayout = waterfalllayout
         self.contentView.addSubview(waterfalllayout)
@@ -151,6 +152,13 @@ extension ViewController {
         
         self.searchField.delegate = self
         self.searchField.text = ""
+        
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.color = UIColor.darkGray
+        self.indicatorView = indicator
+        self.backView.addSubview(indicator)
+        self.backView.bringSubviewToFront(indicator)
         
     }
     
@@ -226,9 +234,120 @@ extension ViewController {
             sortFloatingButton.bottomAnchor.constraint(equalTo: self.backView.bottomAnchor, constant: -30),
             sortFloatingButton.trailingAnchor.constraint(equalTo: self.backView.trailingAnchor, constant: -10),
             sortFloatingButton.widthAnchor.constraint(equalToConstant: 50),
-            sortFloatingButton.heightAnchor.constraint(equalToConstant: 50)
+            sortFloatingButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            indicatorView.centerXAnchor.constraint(equalTo: backView.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: backView.centerYAnchor),
+            indicatorView.heightAnchor.constraint(equalToConstant: 100),
+            indicatorView.widthAnchor.constraint(equalToConstant: 100),
            
         ])
     }
     
+    func showActivityIndicator() {
+        DispatchQueue.main.async {
+            self.indicatorView.startAnimating()
+        }
+    }
+    
+    func hideActivityIndicator() {
+        indicatorView.stopAnimating()
+    }
+    
+}
+extension ViewController: updateTable {
+    func updatedData(response: ApiResponse) {
+        self.uiMappingValue = response
+        DispatchQueue.main.async {
+            self.waterfalllayout.reloadData()
+        }
+    }
+    
+}
+
+extension ViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        self.view.endEditing(true)
+        return true
+    }
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // Get the updated text
+        let currentText = textField.text ?? ""
+        guard let stringRange = Range(range, in: currentText) else {
+            return false
+        }
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+        
+        // Perform the search
+        if updatedText.isEmpty || updatedText == ""{
+            self.uiMappingValue = self.sortBase
+        } else {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+
+            let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }
+            let offerData = self.copySearchBase?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
+            
+            if (productData?.count == 0 || productData == nil) && (offerData?.count == 0 || offerData == nil){
+                self.uiMappingValue = ApiResponse()
+            } else {
+                self.uiMappingValue?.products = productData
+                self.uiMappingValue?.cardOffers = offerData
+            }
+            
+        }
+        
+        if isLinearLayout == true {
+            self.reloadOffersCell = true
+            self.linearLayout.reloadData()
+        } else {
+            self.reloadOffersCell = true
+            self.waterfalllayout.reloadData()
+        }
+        
+        return true
+    }
+
+}
+extension ViewController: SortViewDelegate {
+    func didSelectSortOption(_ option: String) {
+        if let tempView = self.view.viewWithTag(30) {
+            tempView.removeFromSuperview()
+        }
+        currentSort = option
+        if option == "ratings" {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            self.uiMappingValue?.products = sortedProducts
+            
+            if isLinearLayout == true {
+                self.reloadOffersCell = true
+                self.linearLayout.reloadData()
+            } else {
+                self.reloadOffersCell = true
+                self.waterfalllayout.reloadData()
+            }
+        } else {
+            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            self.uiMappingValue?.products = sortedProducts
+            
+            if isLinearLayout == true {
+                self.reloadOffersCell = true
+                self.linearLayout.reloadData()
+            } else {
+                self.reloadOffersCell = true
+                self.waterfalllayout.reloadData()
+            }
+        }
+    }
+    
+}
+extension ViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if let touchedView = touch.view, touchedView.isDescendant(of: self.view.viewWithTag(30)!) {
+            return touchedView.tag == 30
+        }
+        return true
+    }
 }
