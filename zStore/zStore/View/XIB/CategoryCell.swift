@@ -40,7 +40,7 @@ class CategoryCell: UICollectionViewCell {
         
         let categoryLabel = UILabel()
         categoryLabel.textColor = UIColor.black
-        categoryLabel.font = UIFont(name: "SF Pro Text", size: 15)
+        categoryLabel.font = UIFont.systemFont(ofSize: 15,weight: .medium )
         categoryLabel.sizeToFit()
         categoryLabel.textAlignment = .center
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false

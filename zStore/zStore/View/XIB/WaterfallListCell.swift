@@ -62,8 +62,7 @@ class WaterfallListCell: UICollectionViewCell {
         let namelabel = UILabel()
         namelabel.text = ""
         namelabel.textColor = UIColor.black
-        namelabel.font = UIFont.systemFont(ofSize: 14)
-//        namelabel.font = UIFont(name: "SF Pro Text", size: 18)
+        namelabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         namelabel.translatesAutoresizingMaskIntoConstraints = false
         namelabel.isHidden = false
         namelabel.numberOfLines = 4
@@ -78,7 +77,7 @@ class WaterfallListCell: UICollectionViewCell {
         let ratingLabel = UILabel()
         ratingLabel.text = ""
         ratingLabel.textColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
-        ratingLabel.font = UIFont(name: "SF Pro Text", size: 11)
+        ratingLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         ratingLabel.translatesAutoresizingMaskIntoConstraints = false
         ratingLabel.isHidden = false
         self.ratingLabel = ratingLabel
@@ -92,7 +91,7 @@ class WaterfallListCell: UICollectionViewCell {
         let ratingCount = UILabel()
         ratingCount.text = ""
         ratingCount.textColor = UIColor(red: 152/255, green: 152/255, blue: 152/255, alpha: 1)
-        ratingCount.font = UIFont(name: "SF Pro Text", size: 11)
+        ratingCount.font = UIFont.systemFont(ofSize: 13, weight: .thin)
         ratingCount.translatesAutoresizingMaskIntoConstraints = false
         ratingCount.isHidden = false
         self.ratingCount = ratingCount
@@ -107,7 +106,7 @@ class WaterfallListCell: UICollectionViewCell {
         let offerPrice = UILabel()
         offerPrice.text = ""
         offerPrice.textColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
-        offerPrice.font = UIFont(name: "SF Pro Text", size: 20)
+        offerPrice.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         offerPrice.translatesAutoresizingMaskIntoConstraints = false
         offerPrice.isHidden = false
         offerPrice.sizeToFit()
@@ -116,8 +115,7 @@ class WaterfallListCell: UICollectionViewCell {
         
         let deliveryLabel = UILabel()
         deliveryLabel.translatesAutoresizingMaskIntoConstraints = false
-        deliveryLabel.font = UIFont.boldSystemFont(ofSize: 14)
-//        deliveryLabel.font = UIFont(name: "SF Pro Text", size: 8)
+        deliveryLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         deliveryLabel.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
         deliveryLabel.numberOfLines = 3
         self.deliveryLabel = deliveryLabel
@@ -142,7 +140,7 @@ class WaterfallListCell: UICollectionViewCell {
         
         let favILabel = UILabel()
         favILabel.translatesAutoresizingMaskIntoConstraints = false
-        favILabel.font = UIFont(name: "SF Pro Text", size: 13)
+        favILabel.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
         favILabel.textColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
         favILabel.numberOfLines = 0
         favILabel.text = "Add to Fav"
@@ -319,10 +317,9 @@ class WaterfallListCell: UICollectionViewCell {
             
         if let trackingString = view.accessibilityIdentifier {
             if let uiApproach = view.accessibilityHint {
-                CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
-                let newValue = CoredataBase.shared.fetchCoreDataValues()
+                let newValues = CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
                 if localInstance != nil {
-                    localInstance?.updatedData(response: newValue ?? ApiResponse())
+                    localInstance?.updatedData(response: newValues ?? ApiResponse())
                 }
                 print("Tapped on view with tracking string: \(trackingString)")
             } } else {
@@ -334,10 +331,9 @@ class WaterfallListCell: UICollectionViewCell {
             
             if let trackingString = view.accessibilityIdentifier {
                 if let uiApproach = view.accessibilityHint {
-                    CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
-                    let newValue = CoredataBase.shared.fetchCoreDataValues()
+                    let newValues = CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
                     if localInstance != nil {
-                        localInstance?.updatedData(response: newValue ?? ApiResponse())
+                        localInstance?.updatedData(response: newValues ?? ApiResponse())
                     }
                     print("Tapped on view with tracking string: \(trackingString)")
                 }

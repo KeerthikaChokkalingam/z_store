@@ -109,8 +109,9 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         let label = UILabel()
         label.text = "Filter Order: From Top to Bottom"
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont(name: "SF Pro Text", size: 11)
+        label.font = UIFont.systemFont(ofSize: 13,weight: .medium)
         label.sizeToFit()
         label.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
         headerView.addSubview(label)
@@ -123,7 +124,7 @@ class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 37
+        return UITableView.automaticDimension
     }
 }
 
@@ -148,6 +149,7 @@ class CustomTableViewCell: UITableViewCell {
         contentView.backgroundColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
+        titleLabel.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
         contentView.addSubview(titleLabel)
         
         // Configure radioButton

@@ -74,7 +74,7 @@ class OfferCardCell: UICollectionViewCell {
         
         let cardname = UILabel()
         cardname.translatesAutoresizingMaskIntoConstraints = false
-        cardname.font = UIFont(name: "SF Pro Text", size: 16)
+        cardname.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         cardname.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
         cardname.sizeToFit()
         self.cardname = cardname
@@ -82,7 +82,7 @@ class OfferCardCell: UICollectionViewCell {
         
         let offerDesc = UILabel()
         offerDesc.translatesAutoresizingMaskIntoConstraints = false
-        offerDesc.font = UIFont(name: "SF Pro Text", size: 14)
+        offerDesc.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         offerDesc.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
         offerDesc.numberOfLines = 0
         self.offerDesc = offerDesc
@@ -99,7 +99,7 @@ class OfferCardCell: UICollectionViewCell {
         
         let maxDiscount = UILabel()
         maxDiscount.translatesAutoresizingMaskIntoConstraints = false
-        maxDiscount.font = UIFont(name: "SF Pro Text", size: 20)
+        maxDiscount.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         maxDiscount.textColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
         self.maxDiscount = maxDiscount
         self.backView.addSubview(maxDiscount)

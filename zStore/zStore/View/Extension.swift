@@ -33,12 +33,7 @@ extension ViewController {
         let topTitlelabel = UILabel()
         topTitlelabel.text = "Zstore"
         topTitlelabel.textColor = UIColor.black
-        if let customFont = UIFont(name: "SF Pro Text", size: 30.0) {
-            topTitlelabel.font = customFont
-        } else {
-            topTitlelabel.font = UIFont.boldSystemFont(ofSize: 24.0)
-        }
-
+        topTitlelabel.font = UIFont.systemFont(ofSize: 30, weight: .init(700))
         topTitlelabel.sizeToFit()
         topTitlelabel.translatesAutoresizingMaskIntoConstraints = false
         topTitlelabel.isHidden = false
@@ -101,7 +96,7 @@ extension ViewController {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 5)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 2, bottom: 0, right: 2)
 
         let topCategoriesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         topCategoriesCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -257,9 +252,14 @@ extension ViewController {
 }
 extension ViewController: updateTable {
     func updatedData(response: ApiResponse) {
-        self.uiMappingValue = response
+        var selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+        uiMappingValue?.products = selectedCategpryvalues?.products
         DispatchQueue.main.async {
-            self.waterfalllayout.reloadData()
+            if self.isLinearLayout {
+                self.linearLayout.reloadData()
+            } else {
+                self.waterfalllayout.reloadData()
+            }
         }
     }
     

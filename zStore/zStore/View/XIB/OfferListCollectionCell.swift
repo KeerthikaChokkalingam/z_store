@@ -49,7 +49,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         let offerLabel = UILabel()
         offerLabel.translatesAutoresizingMaskIntoConstraints = false
         offerLabel.text = "Offers"
-        offerLabel.font = UIFont(name: "SF Pro Text", size: 18)
+        offerLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         offerLabel.textColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
         self.offerLabel = offerLabel
         self.topOffersView.addSubview(offerLabel)
@@ -76,9 +76,9 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         offerSelectedLabel.translatesAutoresizingMaskIntoConstraints = false
         offerSelectedLabel.isHidden = false
         offerSelectedLabel.sizeToFit()
-        offerSelectedLabel.font = UIFont(name: "SF Pro Text", size: 15)
+        offerSelectedLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         offerSelectedLabel.textColor = UIColor(red: 84/255, green: 84/255, blue: 84/255, alpha: 1)
-        offerSelectedLabel.text = "Applied: "
+        offerSelectedLabel.text = " Applied: "
         self.offerSelectedLabel = offerSelectedLabel
         self.offerSelectedView.addSubview(offerSelectedLabel)
         
@@ -86,7 +86,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         offerSelectedCard.translatesAutoresizingMaskIntoConstraints = false
         offerSelectedCard.isHidden = false
         offerSelectedCard.sizeToFit()
-        offerSelectedCard.font = UIFont(name: "SF Pro Text", size: 15)
+        offerSelectedCard.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         offerSelectedCard.textColor = UIColor(red: 34/255, green: 106/255, blue: 180/255, alpha: 1)
         offerSelectedCard.text = ""
         self.offerSelectedCard = offerSelectedCard

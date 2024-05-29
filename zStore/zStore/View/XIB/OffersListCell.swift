@@ -46,7 +46,7 @@ class OffersListCell: UITableViewCell, UICollectionViewDelegate, UICollectionVie
         let offerLabel = UILabel()
         offerLabel.translatesAutoresizingMaskIntoConstraints = false
         offerLabel.text = "Offers"
-        offerLabel.font = UIFont(name: "SF Pro Text", size: 18)
+        offerLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         offerLabel.textColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
         self.offerLabel = offerLabel
         self.topOffersView.addSubview(offerLabel)

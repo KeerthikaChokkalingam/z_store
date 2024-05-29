@@ -109,7 +109,29 @@ class CoredataBase: NSObject {
         }
     }
     
-    func fetchCoreDataValues() -> ApiResponse? {
+    func fetchCoreDataValues(elementId: String) -> ApiResponse? {
+        var response: ApiResponse?
+        let fetchValue = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
+        if let jsonData = fetchValue.data(using: .utf8) {
+            do {
+                if var json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any] {
+                    if var productsArray = json1["products"] as? [[String: Any]] {
+                        let selectedcategoryFilter = productsArray.filter{$0["category_id"] as! String == elementId}
+                        json1["products"] = productsArray
+                        let jsonData = try JSONSerialization.data(withJSONObject: json1, options: [])
+                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
+                        return apiResponse
+                    }
+                }
+            } catch {
+                return nil
+            }
+        } else {
+            return nil
+        }
+        return response
+    }
+    func fetchProductsForCategories() -> ApiResponse? {
         var response: ApiResponse?
         let fetchValue = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
         if let jsonData = fetchValue.data(using: .utf8) {
@@ -125,15 +147,15 @@ class CoredataBase: NSObject {
         return response
     }
     
-    func getFavoriteAndUpdate(categoryId: String, isFavorite: Bool) {
+    func getFavoriteAndUpdate(categoryId: String, isFavorite: Bool) -> ApiResponse? {
         var jsonString = retrieveDataAsString(entityName: "Zstore", key: "response")
         guard let jsonData = jsonString.data(using: .utf8) else {
-            return
+            return nil
         }
         
         do {
             guard var json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
-                return
+                return nil
             }
             
             if var products = json["products"] as? [[String: Any]] {
@@ -148,11 +170,12 @@ class CoredataBase: NSObject {
                 jsonString = String(data: updatedJsonData, encoding: .utf8) ?? ""
                 
                 createData(entityName: "Zstore", key: "response", value: jsonString)
+                return fetchCoreDataValues(elementId: categoryId)
             } else {
-                return
+                return nil
             }
         } catch {
-            return
+            return nil
         }
     }
     

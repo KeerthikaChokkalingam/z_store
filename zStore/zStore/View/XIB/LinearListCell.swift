@@ -52,10 +52,10 @@ class LinearListCell: UITableViewCell {
             let namelabel = UILabel()
             namelabel.text = ""
             namelabel.textColor = UIColor.black
-            namelabel.font = UIFont(name: "SF Pro Text", size: 18)
+            namelabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
             namelabel.translatesAutoresizingMaskIntoConstraints = false
             namelabel.isHidden = false
-            namelabel.numberOfLines = 0
+            namelabel.numberOfLines = 3
             self.namelabel = namelabel
             self.backView.addSubview(namelabel)
             
@@ -67,7 +67,7 @@ class LinearListCell: UITableViewCell {
             let ratingLabel = UILabel()
             ratingLabel.text = ""
             ratingLabel.textColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
-            ratingLabel.font = UIFont(name: "SF Pro Text", size: 11)
+            ratingLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
             ratingLabel.translatesAutoresizingMaskIntoConstraints = false
             ratingLabel.isHidden = false
             self.ratingLabel = ratingLabel
@@ -81,7 +81,7 @@ class LinearListCell: UITableViewCell {
             let ratingCount = UILabel()
             ratingCount.text = ""
             ratingCount.textColor = UIColor(red: 152/255, green: 152/255, blue: 152/255, alpha: 1)
-            ratingCount.font = UIFont(name: "SF Pro Text", size: 11)
+            ratingCount.font = UIFont.systemFont(ofSize: 13, weight: .thin)
             ratingCount.translatesAutoresizingMaskIntoConstraints = false
             ratingCount.isHidden = false
             self.ratingCount = ratingCount
@@ -96,7 +96,7 @@ class LinearListCell: UITableViewCell {
             let offerPrice = UILabel()
             offerPrice.text = ""
             offerPrice.textColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
-            offerPrice.font = UIFont(name: "SF Pro Text", size: 20)
+            offerPrice.font = UIFont.systemFont(ofSize: 20, weight: .medium)
             offerPrice.translatesAutoresizingMaskIntoConstraints = false
             offerPrice.isHidden = false
             offerPrice.sizeToFit()
@@ -104,7 +104,7 @@ class LinearListCell: UITableViewCell {
             self.priceView.addSubview(offerPrice)
             
             let actualPrice = UILabel()
-            actualPrice.font = UIFont(name: "SF Pro Text", size: 13)
+            actualPrice.font = UIFont.systemFont(ofSize: 13, weight: .regular)
             actualPrice.translatesAutoresizingMaskIntoConstraints = false
             actualPrice.isHidden = false
             actualPrice.sizeToFit()
@@ -124,8 +124,8 @@ class LinearListCell: UITableViewCell {
             savingPrice.setTitle("Save ₹2000", for: .normal)
             savingPrice.backgroundColor = UIColor(red: 21/255, green: 140/255, blue: 91/255, alpha: 1)
             savingPrice.setTitleColor(UIColor.white, for: .normal)
-            savingPrice.titleLabel?.font = UIFont(name: "SF Pro Text", size: 9)
-            savingPrice.layer.cornerRadius = 13
+        savingPrice.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        savingPrice.layer.cornerRadius = 12
         savingPrice.sizeToFit()
         savingPrice.titleLabel?.textAlignment = .center
             self.savingPrice = savingPrice
@@ -133,7 +133,7 @@ class LinearListCell: UITableViewCell {
         
         let deliveryLabel = UILabel()
         deliveryLabel.translatesAutoresizingMaskIntoConstraints = false
-        deliveryLabel.font = UIFont(name: "SF Pro Text", size: 8)
+        deliveryLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         deliveryLabel.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
         deliveryLabel.numberOfLines = 0
         self.deliveryLabel = deliveryLabel
@@ -154,8 +154,8 @@ class LinearListCell: UITableViewCell {
         func setUpConstraints() {
             NSLayoutConstraint.activate([
                 backView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
-                backView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
-                backView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+                backView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+                backView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
                 backView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -2),
                 
                 cardImage.topAnchor.constraint(equalTo: backView.topAnchor, constant: 15),
@@ -166,7 +166,6 @@ class LinearListCell: UITableViewCell {
                 namelabel.topAnchor.constraint(equalTo: cardImage.topAnchor, constant: -5),
                 namelabel.leadingAnchor.constraint(equalTo: cardImage.trailingAnchor, constant: 10),
                 namelabel.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
-                namelabel.heightAnchor.constraint(equalToConstant: 70),
                 
                 ratingsBgView.topAnchor.constraint(equalTo: namelabel.bottomAnchor),
                 ratingsBgView.leadingAnchor.constraint(equalTo: cardImage.trailingAnchor, constant: 10),

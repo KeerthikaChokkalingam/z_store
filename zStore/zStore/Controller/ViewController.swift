@@ -100,13 +100,15 @@ class ViewController: UIViewController {
     }
     func ratingsSort(sortString: String) {
         if sortString == "ratings" {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            var selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            self.uiMappingValue?.products = sortedProducts
+            uiMappingValue?.products = sortedProducts
         } else {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            var selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            self.uiMappingValue?.products = sortedProducts
+            uiMappingValue?.products = sortedProducts
         }
         
         if isLinearLayout == true {
@@ -261,32 +263,35 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     return CGSize(width: 390, height: 186 + offerCellHeight)
                 } else { return CGSize(width: 0, height: 0)}
             } else {
-                let selectedcategoryFilter = self.uiMappingValue?.products?.filter { $0.categoryId == selectedCategoryID }
-                let currentData = selectedcategoryFilter?[indexPath.row]
-                let productName = currentData?.name ?? ""
-                let nameLabelFont = UIFont.systemFont(ofSize: 14)
-                let nameLabelLineHeight = nameLabelFont.lineHeight
-                let maxNameLabelHeight = nameLabelLineHeight * 4
-                let nameLabelSize = CGSize(width:((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
-                var nameLabelRect = productName.boundingRect(with: nameLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: nameLabelFont], context: nil)
-                nameLabelRect.size.height = min(nameLabelRect.size.height, maxNameLabelHeight)
-                let productDescription = currentData?.description ?? ""
-                let deliveryLabelFont = UIFont.boldSystemFont(ofSize: 12)
-                let deliveryLabelLineHeight = deliveryLabelFont.lineHeight
-                let maxDeliveryLabelHeight = deliveryLabelLineHeight * 3
-                let deliveryLabelSize = CGSize(width: ((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
-                var deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: deliveryLabelFont], context: nil)
-                deliveryLabelRect.size.height = min(deliveryLabelRect.size.height, maxDeliveryLabelHeight)
-                let totalHeight = 200 + nameLabelRect.height + 10 + 18 + 25 + deliveryLabelRect.height + 36 + 40
-                
-                return CGSize(width: (self.view.frame.size.width/2) - 10, height: totalHeight)
+                    let selectedcategoryFilter = self.uiMappingValue?.products?.filter { $0.categoryId == selectedCategoryID }
+                if (selectedcategoryFilter?.count ?? 0) > indexPath.item {
+                    let currentData = selectedcategoryFilter?[indexPath.row]
+                    let productName = currentData?.name ?? ""
+                    let nameLabelFont = UIFont.systemFont(ofSize: 14)
+                    let nameLabelLineHeight = nameLabelFont.lineHeight
+                    let maxNameLabelHeight = nameLabelLineHeight * 4
+                    let nameLabelSize = CGSize(width:((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
+                    var nameLabelRect = productName.boundingRect(with: nameLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: nameLabelFont], context: nil)
+                    nameLabelRect.size.height = min(nameLabelRect.size.height, maxNameLabelHeight)
+                    let productDescription = currentData?.description ?? ""
+                    let deliveryLabelFont = UIFont.boldSystemFont(ofSize: 12)
+                    let deliveryLabelLineHeight = deliveryLabelFont.lineHeight
+                    let maxDeliveryLabelHeight = deliveryLabelLineHeight * 3
+                    let deliveryLabelSize = CGSize(width: ((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
+                    var deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: deliveryLabelFont], context: nil)
+                    deliveryLabelRect.size.height = min(deliveryLabelRect.size.height, maxDeliveryLabelHeight)
+                    let totalHeight = 200 + nameLabelRect.height + 10 + 18 + 25 + deliveryLabelRect.height + 36 + 40
+                    return CGSize(width: (self.view.frame.size.width/2) - 10, height: totalHeight)
+                } else {
+                    return CGSize(width: (self.view.frame.size.width/2) - 10, height: 300)
+                }
             }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == topCategoriesCollectionView {
-            return 5
+            return 1
         } else {
             return 0
         }
@@ -312,7 +317,6 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
             }
             
             ratingsSort(sortString: currentSort)
-
 
             for cell in collectionView.visibleCells {
                 if let categoryCell = cell as? CategoryCell {
