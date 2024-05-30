@@ -58,28 +58,26 @@ class CoredataBase: NSObject {
                 // Save changes
                 try privateContext.save()
                 
-                if self.isDataStored(entityName: "Zstore", key: "response", value: value as? String ?? "") {
-                    print("Data updated successfully. \(value)")
-                } else {
-                    print("Failed to update data.")
-                }
             } catch {
                 return
             }
         }
     }
-    func isDataStored(entityName: String, key: String, value: String) -> Bool {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", key, value)
-        
-        do {
-            let results = try managedContext.fetch(fetchRequest)
-            return results.count > 0
-        } catch {
-            print("Failed to fetch data: \(error)")
-            return false
+    func isDataStored(entityName: String, key: String, value: String) async -> Bool {
+        return await withCheckedContinuation { continuation in
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+            fetchRequest.predicate = NSPredicate(format: "%K == %@", key, value)
+            
+            do {
+                let results = try managedContext.fetch(fetchRequest)
+                continuation.resume(returning: results.count > 0)
+            } catch {
+                print("Failed to fetch data: \(error)")
+                continuation.resume(returning: false)
+            }
         }
     }
+
 
     func retrieveData(entityName: String, key: String) -> [NSManagedObject]? {
         var result : [NSManagedObject]? = nil
@@ -163,7 +161,7 @@ class CoredataBase: NSObject {
         return response
     }
     
-    func getFavoriteAndUpdate(categoryId: String, isFavorite: Bool) -> ApiResponse? {
+    func getFavoriteAndUpdate(categoryId: String, isFavorite: Bool) async -> ApiResponse? {
         var jsonString = retrieveDataAsString(entityName: "Zstore", key: "response")
         guard let jsonData = jsonString.data(using: .utf8) else {
             return nil
@@ -185,13 +183,16 @@ class CoredataBase: NSObject {
                 let updatedJsonData = try JSONSerialization.data(withJSONObject: json, options: [])
                 jsonString = String(data: updatedJsonData, encoding: .utf8) ?? ""
                 
-                do {
-                    createData(entityName: "Zstore", key: "response", value: jsonString)
-                }
-                do {
-                    let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: updatedJsonData)
-                    return apiResponse
-                } catch {
+                createData(entityName: "Zstore", key: "response", value: jsonString)
+                
+                if await self.isDataStored(entityName: "Zstore", key: "response", value: jsonString) {
+                    do {
+                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: updatedJsonData)
+                        return apiResponse
+                    } catch {
+                        return nil
+                    }
+                } else {
                     return nil
                 }
                 
@@ -202,6 +203,7 @@ class CoredataBase: NSObject {
             return nil
         }
     }
+
     
 }
 

@@ -113,7 +113,7 @@ class OfferCardCell: UICollectionViewCell {
             backView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -2),
             
             cardImage.centerYAnchor.constraint(equalTo: backView.centerYAnchor),
-            cardImage.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: 10),
+            cardImage.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: 15),
             cardImage.heightAnchor.constraint(equalToConstant: 90),
             cardImage.widthAnchor.constraint(equalToConstant: 90),
             

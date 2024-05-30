@@ -36,7 +36,7 @@ class WaterfallListCell: UICollectionViewCell {
         setUpUI()
         setUpConstraints()
         setUpGesture()
-
+        
     }
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -127,13 +127,13 @@ class WaterfallListCell: UICollectionViewCell {
         self.priceView.addSubview(actualPrice)
         
         let savingPrice = UIButton(type: .custom)
-    savingPrice.translatesAutoresizingMaskIntoConstraints = false
+        savingPrice.translatesAutoresizingMaskIntoConstraints = false
         savingPrice.backgroundColor = UIColor(red: 21/255, green: 140/255, blue: 91/255, alpha: 1)
         savingPrice.setTitleColor(UIColor.white, for: .normal)
-    savingPrice.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .medium)
-    savingPrice.layer.cornerRadius = 12
-    savingPrice.sizeToFit()
-    savingPrice.titleLabel?.textAlignment = .center
+        savingPrice.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        savingPrice.layer.cornerRadius = 12
+        savingPrice.sizeToFit()
+        savingPrice.titleLabel?.textAlignment = .center
         savingPrice.isHidden = true
         self.savingPrice = savingPrice
         self.priceView.addSubview(savingPrice)
@@ -198,8 +198,8 @@ class WaterfallListCell: UICollectionViewCell {
             backView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             cardImage.topAnchor.constraint(equalTo: backView.topAnchor),
-            cardImage.leadingAnchor.constraint(equalTo: backView.leadingAnchor),
-            cardImage.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
+            cardImage.leadingAnchor.constraint(equalTo: backView.leadingAnchor,constant: 1),
+            cardImage.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -1),
             cardImage.heightAnchor.constraint(equalToConstant: 200),
             
             topLeftIcon.topAnchor.constraint(equalTo: backView.topAnchor),
@@ -267,7 +267,7 @@ class WaterfallListCell: UICollectionViewCell {
             favILabel.leadingAnchor.constraint(equalTo: favIcon.trailingAnchor, constant: 5),
         ])
     }
-
+    
     func updateUI(singleData: ProductResponse?) {
         namelabel.text = singleData?.name as? String
         let formattedText =  formatProductDescription(singleData?.description as? String ?? "")
@@ -285,6 +285,7 @@ class WaterfallListCell: UICollectionViewCell {
         ratingCount.text = "(" + String(((singleData?.reviewCount as? Int) ?? 0)) + ")"
         offerPrice.text =  "₹" + String(((singleData?.price) ?? 0))
         cardImage.contentMode = .scaleAspectFill
+        cardImage.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         cardImage.layer.cornerRadius = 13
         if (singleData?.addToFav == true) {
             addToFavView.isHidden = true
@@ -324,7 +325,7 @@ class WaterfallListCell: UICollectionViewCell {
     func formatProductDescription(_ description: String) -> String {
         var formattedDescription = ""
         let components = description.components(separatedBy: "\n")
-
+        
         for component in components {
             if let boldRange = component.range(of: "**") {
                 let boldText = String(component[..<boldRange.lowerBound])
@@ -334,7 +335,7 @@ class WaterfallListCell: UICollectionViewCell {
                 formattedDescription.append("\(component)")
             }
         }
-
+        
         return formattedDescription
     }
     func offerAppliedCalculation(percentage: CGFloat, offerId: String, dataResponse: ProductResponse?) {
@@ -345,7 +346,7 @@ class WaterfallListCell: UICollectionViewCell {
                 actualPrice.isHidden = false
                 savingPrice.isHidden = false
                 
-               
+                
                 let price = dataResponse.price
                 let savingsAmount = price * (percentage / 100.0)
                 
@@ -365,11 +366,11 @@ class WaterfallListCell: UICollectionViewCell {
             } else {
                 actualPrice.isHidden = true
                 savingPrice.isHidden = true
-               
+                
                 offerPrice.text =  "₹" + String(((dataResponse.price)))
             }
         }
-       
+        
     }
     // asign gesture
     func setUpGesture() {
@@ -384,33 +385,30 @@ class WaterfallListCell: UICollectionViewCell {
     }
     // gesture function
     @objc func handleTap(_ gesture: UITapGestureRecognizer) {
-            guard let view = gesture.view else { return }
-            
-        if let trackingString = view.accessibilityIdentifier {
-            if let uiApproach = view.accessibilityHint {
-                let newValues = CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
-                if localInstance != nil {
-                    localInstance?.updatedData(response: newValues ?? ApiResponse())
-                }
-                print("Tapped on view with tracking string: \(trackingString)")
-            } } else {
-                print("Tapped on view with no tracking string.")
-            }
+        Task {
+            await handleGesture(gesture: gesture, isFavorite: true)
         }
+    }
+    
     @objc func handleRemoveTap(_ gesture: UITapGestureRecognizer) {
-            guard let view = gesture.view else { return }
-            
-            if let trackingString = view.accessibilityIdentifier {
-                if let uiApproach = view.accessibilityHint {
-                    let newValues = CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: Bool(uiApproach) ?? false)
-                    if localInstance != nil {
-                        localInstance?.updatedData(response: newValues ?? ApiResponse())
-                    }
-                    print("Tapped on view with tracking string: \(trackingString)")
-                }
-            } else {
-                print("Tapped on view with no tracking string.")
-            }
+        Task {
+            await handleGesture(gesture: gesture, isFavorite: false)
         }
+    }
+    
+    private func handleGesture(gesture: UITapGestureRecognizer, isFavorite: Bool) async {
+        guard let view = gesture.view else { return }
+        
+        if let trackingString = view.accessibilityIdentifier {
+            let newValues = await CoredataBase.shared.getFavoriteAndUpdate(categoryId: trackingString, isFavorite: isFavorite)
+            if let localInstance = localInstance {
+                localInstance.updatedData(response: newValues ?? ApiResponse())
+            }
+            print("Tapped on view with tracking string: \(trackingString)")
+        } else {
+            print("Tapped on view with no tracking string.")
+        }
+    }
+    
 }
 

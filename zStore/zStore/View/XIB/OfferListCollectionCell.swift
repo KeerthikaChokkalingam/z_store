@@ -56,7 +56,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 5)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 5)
         let topOffersCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         topOffersCollectionView.translatesAutoresizingMaskIntoConstraints = false
         topOffersCollectionView.showsHorizontalScrollIndicator = false
@@ -268,7 +268,7 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         return CGSize(width: 340, height: 120)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+        return 5
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
