@@ -186,7 +186,7 @@ class WaterfallListCell: UICollectionViewCell,UITextViewDelegate  {
         self.cardImage.addSubview(topLeftIcon)
         
         let topLeftInnerIcon = UIImageView()
-        topLeftInnerIcon.image = UIImage(named: "shape-3")
+        topLeftInnerIcon.image = UIImage(named: "shape-7")
         topLeftInnerIcon.translatesAutoresizingMaskIntoConstraints = false
         topLeftInnerIcon.contentMode = .scaleAspectFit
         topLeftInnerIcon.isUserInteractionEnabled = true
@@ -208,13 +208,13 @@ class WaterfallListCell: UICollectionViewCell,UITextViewDelegate  {
             
             topLeftIcon.topAnchor.constraint(equalTo: backView.topAnchor),
             topLeftIcon.widthAnchor.constraint(equalToConstant: 75),
-            topLeftIcon.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
-            topLeftIcon.heightAnchor.constraint(equalToConstant: 72),
+            topLeftIcon.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: -1),
+            topLeftIcon.heightAnchor.constraint(equalToConstant: 70),
             
-            topLeftInnerIcon.topAnchor.constraint(equalTo: topLeftIcon.topAnchor, constant: 5),
-            topLeftInnerIcon.widthAnchor.constraint(equalToConstant: 28),
-            topLeftInnerIcon.trailingAnchor.constraint(equalTo: topLeftIcon.trailingAnchor, constant: -5),
-            topLeftInnerIcon.heightAnchor.constraint(equalToConstant: 28),
+            topLeftInnerIcon.topAnchor.constraint(equalTo: topLeftIcon.topAnchor, constant: 10),
+            topLeftInnerIcon.widthAnchor.constraint(equalToConstant: 22),
+            topLeftInnerIcon.trailingAnchor.constraint(equalTo: topLeftIcon.trailingAnchor, constant: -10),
+            topLeftInnerIcon.heightAnchor.constraint(equalToConstant: 20),
             
             namelabel.topAnchor.constraint(equalTo: cardImage.bottomAnchor, constant: 10),
             namelabel.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 10),
