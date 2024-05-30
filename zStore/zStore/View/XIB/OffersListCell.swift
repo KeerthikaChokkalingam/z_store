@@ -158,7 +158,7 @@ class OffersListCell: UITableViewCell, UICollectionViewDelegate, UICollectionVie
     }
     @objc func closeButtonTapped() {
         offerSelectedView.isHidden = true
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "decrease"), object: nil)
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "decrease"), object: nil,userInfo: ["appliedOffer": CardOfferResponse.self])
 
         if let heightConstraint = offerSelectedView.constraints.first(where: { $0.firstAttribute == .height }) {
             let newHeight: CGFloat = 0
@@ -201,7 +201,7 @@ class OffersListCell: UITableViewCell, UICollectionViewDelegate, UICollectionVie
         offerSelectedCard.text = currentdata?.cardName as? String
         offerSelectedView.isHidden = false
         
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "increase"), object: nil)
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "increase"), object: nil,userInfo: ["appliedOffer": currentdata])
 
         if let heightConstraint = offerSelectedView.constraints.first(where: { $0.firstAttribute == .height }) {
             let newHeight: CGFloat = 32

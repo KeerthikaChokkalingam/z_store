@@ -29,11 +29,14 @@ class ViewController: UIViewController {
     var searchTapped: Bool = false
     var isLinearLayout: Bool = false
     var reloadOffersCell: Bool = false
+    var offerApplied: Bool = false
     var currentSort: String = "ratings"
     var offerCellHeight: CGFloat = 0
     var selectedCategoryID: String = "100023"
     var uiMappingValue: ApiResponse?
     let cellSpacing: CGFloat = 10
+    var currentSelectedOfferId: String?
+    var currentSelectedOfferPercenetage: CGFloat?
 
 
     override func viewDidLoad() {
@@ -151,8 +154,13 @@ class ViewController: UIViewController {
         } else {
             favViewHeight = 35
         }
-        
-        let totalHeight = 200 + nameLabelHeight + 10 + 18 + 25 + deliveryLabelHeight + 36 + 40 + favViewHeight
+        var savingsButtonheight: CGFloat = 0
+        if self.currentSelectedOfferId != nil && self.currentSelectedOfferPercenetage != nil {
+            savingsButtonheight = 22
+        } else {
+            savingsButtonheight = 0
+        }
+        let totalHeight = 200 + nameLabelHeight + 10 + 18 + savingsButtonheight + deliveryLabelHeight + 36 + 40 + favViewHeight
         return totalHeight
     }
 
@@ -225,11 +233,23 @@ class ViewController: UIViewController {
     @objc func offerCellHeight(_ notification: Notification) {
         if notification.name.rawValue == "increase" {
             offerCellHeight = 42
+            if let userInfo = notification.userInfo,
+               let myStruct = userInfo["appliedOffer"] as? CardOfferResponse {
+                offerApplied = true
+                currentSelectedOfferId = myStruct.id
+                currentSelectedOfferPercenetage = myStruct.percentage
+            }
         } else {
+            offerApplied = false
+            currentSelectedOfferId = nil
+            currentSelectedOfferPercenetage = nil
             offerCellHeight = 0
         }
-        linearLayout.reloadData()
-        waterfalllayout.reloadData()
+        if isLinearLayout {
+            linearLayout.reloadData()
+        } else {
+            waterfalllayout.reloadData()
+        }
     }
 }
 
@@ -292,7 +312,12 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 if (self.uiMappingValue?.products?.count ?? 0) > indexPath.row {
                     let currentData = self.uiMappingValue?.products?[indexPath.row]
                     cell.updateUI(singleData: currentData)
-                    
+                    if offerApplied == true && self.currentSelectedOfferId != nil && self.currentSelectedOfferPercenetage != nil {
+                        cell.offerAppliedCalculation(percentage: currentSelectedOfferPercenetage!, offerId: currentSelectedOfferId!, dataResponse: currentData)
+                    } else {
+                        cell.actualPrice.isHidden = true
+                        cell.savingPrice.isHidden = true
+                    }
                     if (currentData?.addToFav == true) {
                         cell.addToFavView.isHidden = true
                         cell.topLeftIcon.isHidden = false
@@ -414,6 +439,12 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             let currentData = self.uiMappingValue?.products?[indexPath.row]
             cell.selectionStyle = .none
             cell.updateCell(listVlaue: currentData)
+            if offerApplied == true && self.currentSelectedOfferId != nil && self.currentSelectedOfferPercenetage != nil {
+                cell.offerAppliedCalculation(percentage: currentSelectedOfferPercenetage!, offerId: currentSelectedOfferId!, dataResponse: currentData)
+            } else {
+                cell.actualPrice.isHidden = true
+                cell.savingPrice.isHidden = true
+            }
             return cell
         }
     }

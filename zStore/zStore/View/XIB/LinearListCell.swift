@@ -31,7 +31,10 @@ class LinearListCell: UITableViewCell {
         setupUI()
         setUpConstraints()
     }
-    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setUpConstraints()
+    }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -106,28 +109,20 @@ class LinearListCell: UITableViewCell {
             let actualPrice = UILabel()
             actualPrice.font = UIFont.systemFont(ofSize: 13, weight: .regular)
             actualPrice.translatesAutoresizingMaskIntoConstraints = false
-            actualPrice.isHidden = false
+            actualPrice.isHidden = true
             actualPrice.sizeToFit()
-            
-            let attributes: [NSAttributedString.Key: Any] = [
-                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                .foregroundColor: UIColor(red: 152/255, green: 152/255, blue: 152/255, alpha: 1),
-                .font: actualPrice.font!
-            ]
-            let attributedString = NSAttributedString(string: "₹" + "64,999", attributes: attributes)
-            actualPrice.attributedText = attributedString
             self.actualPrice = actualPrice
             self.priceView.addSubview(actualPrice)
             
             let savingPrice = UIButton(type: .custom)
         savingPrice.translatesAutoresizingMaskIntoConstraints = false
-            savingPrice.setTitle("Save ₹2000", for: .normal)
             savingPrice.backgroundColor = UIColor(red: 21/255, green: 140/255, blue: 91/255, alpha: 1)
             savingPrice.setTitleColor(UIColor.white, for: .normal)
         savingPrice.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         savingPrice.layer.cornerRadius = 12
         savingPrice.sizeToFit()
         savingPrice.titleLabel?.textAlignment = .center
+        savingPrice.isHidden = true
             self.savingPrice = savingPrice
             self.priceView.addSubview(savingPrice)
         
@@ -214,7 +209,40 @@ class LinearListCell: UITableViewCell {
                 
             ])
         }
-
+    func offerAppliedCalculation(percentage: CGFloat, offerId: String, dataResponse: ProductResponse?) {
+        // Calculate the savings amount
+        if let dataResponse = dataResponse {
+            let cardOfferIds = dataResponse.cardOfferIds
+            if cardOfferIds.contains(offerId) {
+                actualPrice.isHidden = false
+                savingPrice.isHidden = false
+                
+               
+                let price = dataResponse.price
+                let savingsAmount = price * (percentage / 100.0)
+                
+                // Calculate the offer amount
+                let offerAmount = price - savingsAmount
+                
+                let attributes: [NSAttributedString.Key: Any] = [
+                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                    .foregroundColor: UIColor(red: 152/255, green: 152/255, blue: 152/255, alpha: 1),
+                    .font: actualPrice.font!
+                ]
+                let attributedString = NSAttributedString(string: "₹" + String(format: "%.1f", (dataResponse.price )) , attributes: attributes)
+                actualPrice.attributedText = attributedString
+                offerPrice.text = String(format: "%.1f", (dataResponse.price - savingsAmount))
+                
+                savingPrice.setTitle("Save ₹" + String(format: "%.1f", (dataResponse.price - offerAmount)), for: .normal)
+            } else {
+                actualPrice.isHidden = true
+                savingPrice.isHidden = true
+               
+                offerPrice.text =  "₹" + String(((dataResponse.price)))
+            }
+        }
+       
+    }
     func updateCell(listVlaue: ProductResponse?) {
         namelabel.text = listVlaue?.name as? String
         let formattedText =  formatProductDescription(listVlaue?.description as? String ?? "")
