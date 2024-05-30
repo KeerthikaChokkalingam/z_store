@@ -57,11 +57,30 @@ class CoredataBase: NSObject {
                 
                 // Save changes
                 try privateContext.save()
+                
+                if self.isDataStored(entityName: "Zstore", key: "response", value: value as? String ?? "") {
+                    print("Data updated successfully. \(value)")
+                } else {
+                    print("Failed to update data.")
+                }
             } catch {
                 return
             }
         }
     }
+    func isDataStored(entityName: String, key: String, value: String) -> Bool {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", key, value)
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            return results.count > 0
+        } catch {
+            print("Failed to fetch data: \(error)")
+            return false
+        }
+    }
+
     func retrieveData(entityName: String, key: String) -> [NSManagedObject]? {
         var result : [NSManagedObject]? = nil
         
@@ -114,14 +133,11 @@ class CoredataBase: NSObject {
         let fetchValue = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
         if let jsonData = fetchValue.data(using: .utf8) {
             do {
-                if var json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any] {
-                    if var productsArray = json1["products"] as? [[String: Any]] {
-                        let selectedcategoryFilter = productsArray.filter{$0["category_id"] as! String == elementId}
-                        json1["products"] = productsArray
+                if let json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any] {
                         let jsonData = try JSONSerialization.data(withJSONObject: json1, options: [])
                         let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
                         return apiResponse
-                    }
+//                    }
                 }
             } catch {
                 return nil
@@ -169,8 +185,16 @@ class CoredataBase: NSObject {
                 let updatedJsonData = try JSONSerialization.data(withJSONObject: json, options: [])
                 jsonString = String(data: updatedJsonData, encoding: .utf8) ?? ""
                 
-                createData(entityName: "Zstore", key: "response", value: jsonString)
-                return fetchCoreDataValues(elementId: categoryId)
+                do {
+                    createData(entityName: "Zstore", key: "response", value: jsonString)
+                }
+                do {
+                    let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: updatedJsonData)
+                    return apiResponse
+                } catch {
+                    return nil
+                }
+                
             } else {
                 return nil
             }

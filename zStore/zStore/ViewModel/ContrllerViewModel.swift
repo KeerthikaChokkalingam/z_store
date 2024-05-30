@@ -68,31 +68,8 @@ class ContrllerViewModel: NSObject {
                                 return
                             }
                             
-                            do {
-                                if let json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any],
-                                   let json2 = try JSONSerialization.jsonObject(with: coredataValues, options: []) as? [AnyHashable: Any] {
-                                    
-                                    if NSDictionary(dictionary: json1).isEqual(to: json2) {
-                                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: coredataValues)
-                                        
-                                        if let jsonString = String(data: jsonData, encoding: .utf8) {
-                                            CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
-                                        }
-                                        completion(.success(apiResponse))
-                                    } else {
-                                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
-                                        
-                                        if let jsonString = String(data: jsonData, encoding: .utf8) {
-                                            CoredataBase.shared.createData(entityName: "Zstore", key: "response", value: jsonString)
-                                        }
-                                        completion(.success(apiResponse))
-                                    }
-                                } else {
-                                    completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
-                                }
-                            } catch {
-                                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No products found"])))
-                            }
+                            let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: coredataValues)
+                            completion(.success(apiResponse))
                         } else {
                             
                             let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)

@@ -33,8 +33,6 @@ class ViewController: UIViewController {
     var offerCellHeight: CGFloat = 0
     var selectedCategoryID: String = "100023"
     var uiMappingValue: ApiResponse?
-    var copySearchBase: ApiResponse?
-    var sortBase: ApiResponse?
     let cellSpacing: CGFloat = 10
 
 
@@ -80,8 +78,6 @@ class ViewController: UIViewController {
             switch result {
             case .success(let apiResponse):
                 self.uiMappingValue = apiResponse
-                self.copySearchBase = apiResponse
-                self.sortBase = apiResponse
                 let selectedcategoryFilter = apiResponse.products?.filter{$0.categoryId == self.selectedCategoryID}
                 let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
                 self.uiMappingValue?.products = sortedProducts
@@ -100,12 +96,12 @@ class ViewController: UIViewController {
     }
     func ratingsSort(sortString: String) {
         if sortString == "ratings" {
-            var selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
             uiMappingValue?.products = sortedProducts
         } else {
-            var selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
             uiMappingValue?.products = sortedProducts
@@ -171,7 +167,21 @@ class ViewController: UIViewController {
         self.searchField.resignFirstResponder()
         self.view.endEditing(true)
         
-        self.uiMappingValue = self.copySearchBase
+        if self.currentSort == "ratings" {
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
+            uiMappingValue?.products = sortedProducts
+        } else {
+
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
+            uiMappingValue?.products = sortedProducts
+        }
+        
         if isLinearLayout == true {
             self.reloadOffersCell = true
             self.linearLayout.reloadData()
@@ -276,6 +286,14 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 if (self.uiMappingValue?.products?.count ?? 0) > indexPath.row {
                     let currentData = self.uiMappingValue?.products?[indexPath.row]
                     cell.updateUI(singleData: currentData)
+                    
+                    if (currentData?.addToFav == true) {
+                        cell.addToFavView.isHidden = true
+                        cell.topLeftIcon.isHidden = false
+                    } else {
+                        cell.topLeftIcon.isHidden = true
+                        cell.addToFavView.isHidden = false
+                    }
                 }
                 cell.localInstance = self
                 return cell

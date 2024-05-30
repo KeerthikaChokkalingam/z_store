@@ -279,12 +279,25 @@ extension ViewController: UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
         if updatedText.isEmpty || updatedText == ""{
-            self.uiMappingValue = self.sortBase
+            
+            if self.currentSort == "ratings" {
+                let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+                let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+                let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+                uiMappingValue?.products = sortedProducts
+            } else {
+
+                let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+                let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+                let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+                uiMappingValue?.products = sortedProducts
+            }
         } else {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
 
             let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }
-            let offerData = self.copySearchBase?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
+            let offerData = selectedCategpryvalues?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
             
             if (productData?.count == 0 || productData == nil) && (offerData?.count == 0 || offerData == nil){
                 self.uiMappingValue = ApiResponse()
@@ -314,29 +327,24 @@ extension ViewController: SortViewDelegate {
         }
         currentSort = option
         if option == "ratings" {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            self.uiMappingValue?.products = sortedProducts
+            uiMappingValue?.products = sortedProducts
             
-            if isLinearLayout == true {
-                self.reloadOffersCell = true
-                self.linearLayout.reloadData()
-            } else {
-                self.reloadOffersCell = true
-                self.waterfalllayout.reloadData()
-            }
         } else {
-            let selectedcategoryFilter = self.copySearchBase?.products?.filter{$0.categoryId == selectedCategoryID}
+
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            self.uiMappingValue?.products = sortedProducts
-            
-            if isLinearLayout == true {
-                self.reloadOffersCell = true
-                self.linearLayout.reloadData()
-            } else {
-                self.reloadOffersCell = true
-                self.waterfalllayout.reloadData()
-            }
+            uiMappingValue?.products = sortedProducts
+        }
+        if isLinearLayout == true {
+            self.reloadOffersCell = true
+            self.linearLayout.reloadData()
+        } else {
+            self.reloadOffersCell = true
+            self.waterfalllayout.reloadData()
         }
     }
     
