@@ -148,11 +148,81 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         
     }
     func setUpDelegate() {
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(selectIndex(_:)), name: NSNotification.Name(rawValue: "selectList"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(selectIndex(_:)), name: NSNotification.Name(rawValue: "UnselectList"), object: nil)
+        
+        
         topOffersCollectionView.delegate = self
         topOffersCollectionView.dataSource = self
         topOffersCollectionView.register(OfferCardCell.self, forCellWithReuseIdentifier: "OfferCardCell")
         offerCloseButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         topOffersCollectionView.reloadData()
+    }
+    @objc func selectIndex(_ notification: Notification) {
+        if notification.name.rawValue == "selectList" {
+            if let userInfo = notification.userInfo,
+               let myStruct = userInfo["appliedOffer"] as? CardOfferResponse  {
+                if myStruct.cardName == "HDFC Bank Credit card" {
+                    let indexPath = IndexPath(row: 0, section: 0)
+                    topOffersCollectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredVertically)
+                    
+                } else if  myStruct.cardName == "IFBC Bank Credit card" {
+                    let indexPath = IndexPath(row: 1, section: 0)
+                    topOffersCollectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredVertically)
+                    
+                } else {
+                    let indexPath = IndexPath(row: 2, section: 0)
+                    topOffersCollectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredVertically)
+                }
+                offerSelectedCard.text = myStruct.cardName as? String
+                offerSelectedView.isHidden = false
+                
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "increase"), object: nil,userInfo: ["appliedOffer": myStruct])
+                
+                if let heightConstraint = offerSelectedView.constraints.first(where: { $0.firstAttribute == .height }) {
+                    let newHeight: CGFloat = 32
+                    heightConstraint.constant = newHeight
+                }
+                if let heightConstraint = offerSelectedLabel.constraints.first(where: { $0.firstAttribute == .height }) {
+                    let newHeight: CGFloat = 20
+                    heightConstraint.constant = newHeight
+                }
+                if let heightConstraint = offerSelectedCard.constraints.first(where: { $0.firstAttribute == .height }) {
+                    let newHeight: CGFloat = 20
+                    heightConstraint.constant = newHeight
+                }
+                if let heightConstraint = offerCloseButton.constraints.first(where: { $0.firstAttribute == .height }) {
+                    let newHeight: CGFloat = 18
+                    heightConstraint.constant = newHeight
+                }
+                if let heightConstraint = offerCloseButton.constraints.first(where: { $0.firstAttribute == .width }) {
+                    let newHeight: CGFloat = 18
+                    heightConstraint.constant = newHeight
+                }
+            }
+        } else {
+            offerSelectedView.isHidden = true
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "decrease"), object: nil,userInfo: ["appliedOffer": CardOfferResponse.self])
+
+            if let heightConstraint = offerSelectedView.constraints.first(where: { $0.firstAttribute == .height }) {
+                let newHeight: CGFloat = 0
+                heightConstraint.constant = newHeight
+            }
+            if let heightConstraint = offerSelectedLabel.constraints.first(where: { $0.firstAttribute == .height }) {
+                let newHeight: CGFloat = 0
+                heightConstraint.constant = newHeight
+            }
+            if let heightConstraint = offerSelectedCard.constraints.first(where: { $0.firstAttribute == .height }) {
+                let newHeight: CGFloat = 0
+                heightConstraint.constant = newHeight
+            }
+            if let heightConstraint = offerCloseButton.constraints.first(where: { $0.firstAttribute == .height }) {
+                let newHeight: CGFloat = 0
+                heightConstraint.constant = newHeight
+            }
+        }
     }
     func searchApply () {
         if isSearchApply {
@@ -162,6 +232,9 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
     @objc func closeButtonTapped() {
         offerSelectedView.isHidden = true
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "decrease"), object: nil,userInfo: ["appliedOffer": CardOfferResponse.self])
+        
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "UnselectList"), object: nil,userInfo: ["appliedOffer": CardOfferResponse.self])
+
 
         if let heightConstraint = offerSelectedView.constraints.first(where: { $0.firstAttribute == .height }) {
             let newHeight: CGFloat = 0
@@ -207,6 +280,9 @@ class OfferListCollectionCell: UICollectionViewCell, UICollectionViewDelegate, U
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "increase"), object: nil,userInfo: ["appliedOffer": currentdata])
 
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "selectList"), object: nil,userInfo: ["appliedOffer": currentdata])
+
+        
         if let heightConstraint = offerSelectedView.constraints.first(where: { $0.firstAttribute == .height }) {
             let newHeight: CGFloat = 32
             heightConstraint.constant = newHeight

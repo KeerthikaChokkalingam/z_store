@@ -140,6 +140,14 @@ extension ViewController {
         sortFloatingButton.layer.cornerRadius = 25
         sortFloatingButton.imageView?.contentMode = .scaleAspectFit
         sortFloatingButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        sortFloatingButton.layer.shadowColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1).cgColor
+        sortFloatingButton.layer.shadowOpacity = 0.5
+        sortFloatingButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        sortFloatingButton.layer.shadowRadius = 4
+        sortFloatingButton.layer.masksToBounds = false
+
+        
         sortFloatingButton.isHidden = false
         self.sortFloatingButton = sortFloatingButton
         self.backView.addSubview(sortFloatingButton)
