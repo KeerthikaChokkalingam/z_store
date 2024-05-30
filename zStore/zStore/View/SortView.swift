@@ -14,12 +14,12 @@ protocol SortViewDelegate: AnyObject {
 class SortView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     let tableView = UITableView()
-    var items = ["ratings", "amount"]
+    var items = ["Rating", "Price"]
     var icons = ["shape-5", "shape-6"]
     var selectedIndexPath: IndexPath?
     weak var delegate: SortViewDelegate?
     
-    var selectedValue: String = "ratings" {
+    var selectedValue: String = "Rating" {
         didSet {
             selectDefaultOption()
         }
@@ -156,7 +156,7 @@ class CustomTableViewCell: UITableViewCell {
         radioButton.translatesAutoresizingMaskIntoConstraints = false
         radioButton.setImage(UIImage(systemName: "circle"), for: .normal)
         radioButton.tintColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)
-        radioButton.setImage(UIImage(systemName: "largecircle.fill.circle"), for: .selected)
+        radioButton.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .selected)
         radioButton.isUserInteractionEnabled = false
         
         contentView.addSubview(radioButton)
