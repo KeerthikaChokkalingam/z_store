@@ -7,7 +7,7 @@
 
 import UIKit
 
-class LinearListCell: UITableViewCell {
+class LinearListCell: UITableViewCell,UITextViewDelegate {
 
     weak var backView: UIView!
     weak var cardImage: CustomImageView!
@@ -20,7 +20,7 @@ class LinearListCell: UITableViewCell {
     weak var offerPrice: UILabel!
     weak var actualPrice: UILabel!
     weak var savingPrice: UIButton!
-    weak var deliveryLabel: UILabel!
+    weak var deliveryLabel: UITextView!
     weak var availableColorView: UIView!
     weak var circleView: CircleView!
     
@@ -126,11 +126,14 @@ class LinearListCell: UITableViewCell {
             self.savingPrice = savingPrice
             self.priceView.addSubview(savingPrice)
         
-        let deliveryLabel = UILabel()
+        let deliveryLabel = UITextView()
         deliveryLabel.translatesAutoresizingMaskIntoConstraints = false
-        deliveryLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        deliveryLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         deliveryLabel.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
-        deliveryLabel.numberOfLines = 0
+        deliveryLabel.delegate = self
+        deliveryLabel.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        deliveryLabel.isScrollEnabled = false
+        deliveryLabel.isEditable = false
         self.deliveryLabel = deliveryLabel
         self.backView.addSubview(deliveryLabel)
         
@@ -149,37 +152,37 @@ class LinearListCell: UITableViewCell {
         func setUpConstraints() {
             NSLayoutConstraint.activate([
                 backView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
-                backView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-                backView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+                backView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
+                backView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
                 backView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -2),
                 
                 cardImage.topAnchor.constraint(equalTo: backView.topAnchor, constant: 15),
-                cardImage.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 15),
+                cardImage.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 8),
                 cardImage.heightAnchor.constraint(equalToConstant: 90),
                 cardImage.widthAnchor.constraint(equalToConstant: 90),
                 
                 namelabel.topAnchor.constraint(equalTo: cardImage.topAnchor, constant: -5),
-                namelabel.leadingAnchor.constraint(equalTo: cardImage.trailingAnchor, constant: 10),
+                namelabel.leadingAnchor.constraint(equalTo: cardImage.trailingAnchor, constant: 15),
                 namelabel.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
                 
-                ratingsBgView.topAnchor.constraint(equalTo: namelabel.bottomAnchor),
-                ratingsBgView.leadingAnchor.constraint(equalTo: cardImage.trailingAnchor, constant: 10),
+                ratingsBgView.topAnchor.constraint(equalTo: namelabel.bottomAnchor,constant: 5),
+                ratingsBgView.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
                 ratingsBgView.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
                 ratingsBgView.heightAnchor.constraint(equalToConstant: 18),
                 
                 ratingLabel.topAnchor.constraint(equalTo: ratingsBgView.topAnchor),
                 ratingLabel.leadingAnchor.constraint(equalTo: ratingsBgView.leadingAnchor),
                 ratingLabel.heightAnchor.constraint(equalToConstant: 18),
-                ratingLabel.widthAnchor.constraint(equalToConstant: 25),
+//                ratingLabel.widthAnchor.constraint(equalToConstant: 25),
                 
-                ratingView.leadingAnchor.constraint(equalTo: ratingLabel.trailingAnchor, constant: 5),
+                ratingView.leadingAnchor.constraint(equalTo: ratingLabel.trailingAnchor, constant: 2),
                 
                 ratingCount.topAnchor.constraint(equalTo: ratingsBgView.topAnchor),
-                ratingCount.leadingAnchor.constraint(equalTo: ratingView.trailingAnchor, constant: 94),
+                ratingCount.leadingAnchor.constraint(equalTo: ratingView.trailingAnchor, constant: 85),
                 ratingCount.heightAnchor.constraint(equalToConstant: 18),
                 
                 priceView.topAnchor.constraint(equalTo: ratingCount.bottomAnchor),
-                priceView.leadingAnchor.constraint(equalTo: cardImage.trailingAnchor, constant: 10),
+                priceView.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
                 priceView.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
                 priceView.heightAnchor.constraint(equalToConstant: 25),
                 
@@ -194,16 +197,14 @@ class LinearListCell: UITableViewCell {
                 savingPrice.widthAnchor.constraint(equalToConstant: 100),
                 savingPrice.heightAnchor.constraint(equalToConstant: 22),
                 
-                deliveryLabel.topAnchor.constraint(equalTo: priceView.bottomAnchor),
-                deliveryLabel.leadingAnchor.constraint(equalTo: priceView.leadingAnchor),
+                deliveryLabel.topAnchor.constraint(equalTo: priceView.bottomAnchor, constant: -5),
+                deliveryLabel.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
                 deliveryLabel.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
-                deliveryLabel.heightAnchor.constraint(equalToConstant: 18),
                 
-                availableColorView.topAnchor.constraint(equalTo: deliveryLabel.bottomAnchor),
-                availableColorView.leadingAnchor.constraint(equalTo: priceView.leadingAnchor),
+                availableColorView.topAnchor.constraint(equalTo: deliveryLabel.bottomAnchor,constant: -5),
+                availableColorView.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
                 availableColorView.trailingAnchor.constraint(equalTo: priceView.trailingAnchor),
                 availableColorView.heightAnchor.constraint(equalToConstant: 28),
-                
                 
                 circleView.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
                 
@@ -245,12 +246,41 @@ class LinearListCell: UITableViewCell {
     }
     func updateCell(listVlaue: ProductResponse?) {
         namelabel.text = listVlaue?.name as? String
-        let formattedText =  formatProductDescription(listVlaue?.description as? String ?? "")
-        deliveryLabel.text = formattedText 
-        deliveryLabel.font = deliveryLabel.font.withSize(deliveryLabel.font.pointSize)
+
+        // Usage
+        let markdownText = listVlaue?.description ?? ""
+        let formattedDescription = formatProductDescription(markdownText: markdownText)
+
+        if let data = formattedDescription.data(using: .utf8) {
+            do {
+                let attributedString = try NSAttributedString(
+                    data: data,
+                    options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue],
+                    documentAttributes: nil
+                )
+                deliveryLabel.attributedText = attributedString
+            } catch {
+                print("Error creating attributed string: \(error)")
+                deliveryLabel.text = markdownText // Fallback to plain text if conversion fails
+            }
+        } else {
+            deliveryLabel.text = markdownText // Fallback to plain text if conversion fails
+        }
+        if let rating = listVlaue?.rating {
+            let ratingString = String(rating)
+            let split = ratingString.split(separator: ".", omittingEmptySubsequences: false)
+            print(split)
+            if split.count == 2 {
+                if split[1] == "0" {
+                    ratingLabel.text = String(split[0])
+                } else {
+                    ratingLabel.text = String(split[0]) + "." + String(split[1])
+                }
+            }
+        } else {
+            print("Rating is nil")
+        }
         
-        deliveryLabel.font = UIFont.boldSystemFont(ofSize: deliveryLabel.font.pointSize)
-        ratingLabel.text = convertToString(from: listVlaue?.rating) ?? ""
         ratingView.rating = convertToInt(from: listVlaue?.rating) ?? 0
         if (listVlaue?.colors?.count ?? 0 ) > 0 {
             availableColorView.isHidden = false
@@ -261,7 +291,7 @@ class LinearListCell: UITableViewCell {
         ratingCount.text = "(" + String(((listVlaue?.reviewCount as? Int) ?? 0)) + ")"
         offerPrice.text =  "₹" + String(((listVlaue?.price as? Double) ?? 0))
         cardImage.contentMode = .scaleAspectFill
-        cardImage.layer.cornerRadius = 13
+        cardImage.layer.cornerRadius = 15
         if listVlaue?.imageUrl != nil && listVlaue?.imageUrl != "" {
             cardImage.loadImage(urlString: (listVlaue?.imageUrl as? String) ?? "" )
         }
@@ -290,21 +320,64 @@ class LinearListCell: UITableViewCell {
         }
         return nil
     }
-    func formatProductDescription(_ description: String) -> String {
-        var formattedDescription = ""
-        let components = description.components(separatedBy: "\n")
+   
+    func formatProductDescription(markdownText: String) -> String {
+        let linkPattern =  #"\[([^\]]+)]\(([^)]+)\)"#
+        let boldPattern = #"\*\*(.+?)\*\*"#
 
-        for component in components {
-            if let boldRange = component.range(of: "**") {
-                let boldText = String(component[..<boldRange.lowerBound])
-                let remainingText = String(component[boldRange.upperBound...])
-                formattedDescription.append("\(boldText)\(remainingText)")
-            } else {
-                formattedDescription.append("\(component)")
+        let linkRegex = try! NSRegularExpression(pattern: linkPattern, options: .caseInsensitive)
+        let boldRegex = try! NSRegularExpression(pattern: boldPattern, options: .caseInsensitive)
+
+        var formattedText = markdownText
+        
+        // Process links
+        let linkMatches = linkRegex.matches(in: markdownText, options: [], range: NSRange(location: 0, length: markdownText.utf16.count))
+        var linkReplacements: [(range: NSRange, replacement: String)] = []
+        
+        for match in linkMatches {
+            let urlRange = match.range(at: 2)
+            let linkTextRange = match.range(at: 1)
+            
+            if let urlRange = Range(urlRange, in: markdownText),
+               let linkTextRange = Range(linkTextRange, in: markdownText) {
+                let url = String(markdownText[urlRange])
+                let linkText = String(markdownText[linkTextRange])
+                let replacement = "<a href=\"\("https://www.zoho.com")\">\(linkText)</a>"
+                linkReplacements.append((range: match.range, replacement: replacement))
             }
         }
-
-        return formattedDescription
+        
+        for replacement in linkReplacements.reversed() {
+            if let range = Range(replacement.range, in: formattedText) {
+                formattedText.replaceSubrange(range, with: replacement.replacement)
+            }
+        }
+        
+        // Process bold text
+        let boldMatches = boldRegex.matches(in: formattedText, options: [], range: NSRange(location: 0, length: formattedText.utf16.count))
+        var boldReplacements: [(range: NSRange, replacement: String)] = []
+        
+        for match in boldMatches {
+            let boldRange = match.range(at: 1)
+            
+            if let boldRange = Range(boldRange, in: formattedText) {
+                let boldText = String(formattedText[boldRange])
+                let replacement = "<b>\(boldText)</b>"
+                boldReplacements.append((range: match.range, replacement: replacement))
+            }
+        }
+        
+        for replacement in boldReplacements.reversed() {
+            if let range = Range(replacement.range, in: formattedText) {
+                formattedText.replaceSubrange(range, with: replacement.replacement)
+            }
+        }
+        
+        return formattedText
     }
-    
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        UIApplication.shared.open(URL)
+        return false
+    }
+
 }

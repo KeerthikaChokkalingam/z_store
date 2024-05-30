@@ -10,7 +10,7 @@ protocol updateTable {
     func updatedData(response: ApiResponse)
 }
 
-class WaterfallListCell: UICollectionViewCell {
+class WaterfallListCell: UICollectionViewCell,UITextViewDelegate  {
     
     weak var backView: UIView!
     weak var cardImage: CustomImageView!
@@ -23,7 +23,7 @@ class WaterfallListCell: UICollectionViewCell {
     weak var offerPrice: UILabel!
     weak var actualPrice: UILabel!
     weak var savingPrice: UIButton!
-    weak var deliveryLabel: UILabel!
+    weak var deliveryLabel: UITextView!
     weak var addToFavView: UIView!
     weak var favIcon: UIImageView!
     weak var topLeftIcon: UIImageView!
@@ -138,11 +138,15 @@ class WaterfallListCell: UICollectionViewCell {
         self.savingPrice = savingPrice
         self.priceView.addSubview(savingPrice)
         
-        let deliveryLabel = UILabel()
+        let deliveryLabel = UITextView()
         deliveryLabel.translatesAutoresizingMaskIntoConstraints = false
         deliveryLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         deliveryLabel.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
-        deliveryLabel.numberOfLines = 3
+        deliveryLabel.delegate = self
+        deliveryLabel.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        deliveryLabel.isScrollEnabled = false
+        deliveryLabel.isEditable = false
+//        deliveryLabel.numberOfLines = 3
         self.deliveryLabel = deliveryLabel
         self.backView.addSubview(deliveryLabel)
         
@@ -216,7 +220,7 @@ class WaterfallListCell: UICollectionViewCell {
             namelabel.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 10),
             namelabel.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
             
-            ratingsBgView.topAnchor.constraint(equalTo: namelabel.bottomAnchor),
+            ratingsBgView.topAnchor.constraint(equalTo: namelabel.bottomAnchor, constant: 2),
             ratingsBgView.leadingAnchor.constraint(equalTo: cardImage.leadingAnchor, constant: 10),
             ratingsBgView.trailingAnchor.constraint(equalTo: cardImage.trailingAnchor),
             ratingsBgView.heightAnchor.constraint(equalToConstant: 18),
@@ -224,15 +228,15 @@ class WaterfallListCell: UICollectionViewCell {
             ratingLabel.topAnchor.constraint(equalTo: ratingsBgView.topAnchor),
             ratingLabel.leadingAnchor.constraint(equalTo: ratingsBgView.leadingAnchor),
             ratingLabel.heightAnchor.constraint(equalToConstant: 18),
-            ratingLabel.widthAnchor.constraint(equalToConstant: 25),
+//            ratingLabel.widthAnchor.constraint(equalToConstant: 25),
             
-            ratingView.leadingAnchor.constraint(equalTo: ratingLabel.trailingAnchor, constant: 5),
+            ratingView.leadingAnchor.constraint(equalTo: ratingLabel.trailingAnchor, constant: 2),
             
             ratingCount.topAnchor.constraint(equalTo: ratingsBgView.topAnchor),
-            ratingCount.leadingAnchor.constraint(equalTo: ratingView.trailingAnchor, constant: 94),
+            ratingCount.leadingAnchor.constraint(equalTo: ratingView.trailingAnchor, constant: 85),
             ratingCount.heightAnchor.constraint(equalToConstant: 18),
             
-            priceView.topAnchor.constraint(equalTo: ratingsBgView.bottomAnchor),
+            priceView.topAnchor.constraint(equalTo: ratingsBgView.bottomAnchor, constant: 1),
             priceView.leadingAnchor.constraint(equalTo: cardImage.leadingAnchor, constant: 10),
             priceView.trailingAnchor.constraint(equalTo: cardImage.trailingAnchor),
             priceView.heightAnchor.constraint(equalToConstant: 25),
@@ -249,11 +253,11 @@ class WaterfallListCell: UICollectionViewCell {
             savingPrice.widthAnchor.constraint(equalToConstant: 70),
             savingPrice.heightAnchor.constraint(equalToConstant: 22),
             
-            deliveryLabel.topAnchor.constraint(equalTo: savingPrice.bottomAnchor, constant: 3),
+            deliveryLabel.topAnchor.constraint(equalTo: savingPrice.bottomAnchor, constant: -2),
             deliveryLabel.leadingAnchor.constraint(equalTo: cardImage.leadingAnchor, constant: 10),
             deliveryLabel.trailingAnchor.constraint(equalTo: cardImage.trailingAnchor),
             
-            addToFavView.topAnchor.constraint(equalTo: deliveryLabel.bottomAnchor, constant: 10),
+            addToFavView.topAnchor.constraint(equalTo: deliveryLabel.bottomAnchor, constant: -2),
             addToFavView.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 10),
             addToFavView.widthAnchor.constraint(equalToConstant: 120),
             addToFavView.heightAnchor.constraint(equalToConstant: 36),
@@ -270,17 +274,47 @@ class WaterfallListCell: UICollectionViewCell {
     
     func updateUI(singleData: ProductResponse?) {
         namelabel.text = singleData?.name as? String
-        let formattedText =  formatProductDescription(singleData?.description as? String ?? "")
-        deliveryLabel.text = formattedText // From step 1
-        deliveryLabel.font = deliveryLabel.font.withSize(12)
         
         topLeftIcon.accessibilityIdentifier = singleData?.id
         topLeftIcon.accessibilityHint = "false"
         addToFavView.accessibilityIdentifier = singleData?.id
         addToFavView.accessibilityHint = "true"
         
-        deliveryLabel.font = UIFont.boldSystemFont(ofSize: 12)
-        ratingLabel.text = convertToString(from: singleData?.rating) ?? ""
+        // Usage
+        let markdownText = singleData?.description ?? ""
+        let formattedDescription = formatProductDescription(markdownText: markdownText)
+
+        if let data = formattedDescription.data(using: .utf8) {
+            do {
+                let attributedString = try NSAttributedString(
+                    data: data,
+                    options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue],
+                    documentAttributes: nil
+                )
+                deliveryLabel.attributedText = attributedString
+            } catch {
+                print("Error creating attributed string: \(error)")
+                deliveryLabel.text = markdownText // Fallback to plain text if conversion fails
+            }
+        } else {
+            deliveryLabel.text = markdownText // Fallback to plain text if conversion fails
+        }
+        
+        if let rating = singleData?.rating {
+            let ratingString = String(rating)
+            let split = ratingString.split(separator: ".", omittingEmptySubsequences: false)
+            print(split)
+            if split.count == 2 {
+                if split[1] == "0" {
+                    ratingLabel.text = String(split[0])
+                } else {
+                    ratingLabel.text = String(split[0]) + "." + String(split[1])
+                }
+            }
+        } else {
+            print("Rating is nil")
+        }
+        
         ratingView.rating = convertToInt(from: singleData?.rating) ?? 0
         ratingCount.text = "(" + String(((singleData?.reviewCount as? Int) ?? 0)) + ")"
         offerPrice.text =  "₹" + String(((singleData?.price) ?? 0))
@@ -322,22 +356,62 @@ class WaterfallListCell: UICollectionViewCell {
         }
         return nil
     }
-    func formatProductDescription(_ description: String) -> String {
-        var formattedDescription = ""
-        let components = description.components(separatedBy: "\n")
+    func formatProductDescription(markdownText: String) -> String {
+        let linkPattern =  #"\[([^\]]+)]\(([^)]+)\)"#
+        let boldPattern = #"\*\*(.+?)\*\*"#
+
+        let linkRegex = try! NSRegularExpression(pattern: linkPattern, options: .caseInsensitive)
+        let boldRegex = try! NSRegularExpression(pattern: boldPattern, options: .caseInsensitive)
+
+        var formattedText = markdownText
         
-        for component in components {
-            if let boldRange = component.range(of: "**") {
-                let boldText = String(component[..<boldRange.lowerBound])
-                let remainingText = String(component[boldRange.upperBound...])
-                formattedDescription.append("\(boldText)\(remainingText)")
-            } else {
-                formattedDescription.append("\(component)")
+        // Process links
+        let linkMatches = linkRegex.matches(in: markdownText, options: [], range: NSRange(location: 0, length: markdownText.utf16.count))
+        var linkReplacements: [(range: NSRange, replacement: String)] = []
+        
+        for match in linkMatches {
+            let urlRange = match.range(at: 2)
+            let linkTextRange = match.range(at: 1)
+            
+            if let urlRange = Range(urlRange, in: markdownText),
+               let linkTextRange = Range(linkTextRange, in: markdownText) {
+                let url = String(markdownText[urlRange])
+                let linkText = String(markdownText[linkTextRange])
+                let replacement = "<a href=\"\("https://www.zoho.com")\">\(linkText)</a>"
+                linkReplacements.append((range: match.range, replacement: replacement))
             }
         }
         
-        return formattedDescription
+        for replacement in linkReplacements.reversed() {
+            if let range = Range(replacement.range, in: formattedText) {
+                formattedText.replaceSubrange(range, with: replacement.replacement)
+            }
+        }
+        
+        // Process bold text
+        let boldMatches = boldRegex.matches(in: formattedText, options: [], range: NSRange(location: 0, length: formattedText.utf16.count))
+        var boldReplacements: [(range: NSRange, replacement: String)] = []
+        
+        for match in boldMatches {
+            let boldRange = match.range(at: 1)
+            
+            if let boldRange = Range(boldRange, in: formattedText) {
+                let boldText = String(formattedText[boldRange])
+                let replacement = "<b>\(boldText)</b>"
+                boldReplacements.append((range: match.range, replacement: replacement))
+            }
+        }
+        
+        for replacement in boldReplacements.reversed() {
+            if let range = Range(replacement.range, in: formattedText) {
+                formattedText.replaceSubrange(range, with: replacement.replacement)
+            }
+        }
+        
+        return formattedText
     }
+
+
     func offerAppliedCalculation(percentage: CGFloat, offerId: String, dataResponse: ProductResponse?) {
         // Calculate the savings amount
         if let dataResponse = dataResponse {
@@ -409,6 +483,9 @@ class WaterfallListCell: UICollectionViewCell {
             print("Tapped on view with no tracking string.")
         }
     }
-    
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        UIApplication.shared.open(URL)
+        return false
+    }
 }
 
