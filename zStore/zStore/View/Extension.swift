@@ -258,9 +258,42 @@ extension ViewController {
     }
     
 }
+
+//extension ViewController: updateTable {
+//    func updatedData(categoryId: String, isfavorite: Bool) {
+//        let category = viewModel?.getFav(currentSort: currentSort, currentCategory: categoryId, isfavorite: isfavorite)
+//    }
+   
+//    func updatedData(response: ApiResponse) {
+//        uiMappingValue = viewModel?.getFav(currentSort: currentSort, currentCategory: selectedCategoryID)
+//        
+//        DispatchQueue.main.async {
+//            if self.isLinearLayout {
+//                self.linearLayout.reloadData()
+//            } else {
+//                self.waterfalllayout.reloadData()
+//            }
+//        }
+//    }
+    
+//}
 extension ViewController: updateTable {
     func updatedData(response: ApiResponse) {
-        uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
+        
+        if self.currentSort == "ratings" {
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
+            uiMappingValue?.products = sortedProducts
+        } else {
+
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
+            uiMappingValue?.products = sortedProducts
+        }
         
         DispatchQueue.main.async {
             if self.isLinearLayout {
@@ -291,7 +324,7 @@ extension ViewController: UITextFieldDelegate {
             self.topCategoriesCollectionView.reloadData()
             uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         } else {
-            let selectedCategpryvalues = viewModel?.fetchController()
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
 
             let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }

@@ -374,7 +374,7 @@ class WaterfallListCell: UICollectionViewCell,UITextViewDelegate  {
             
             if let urlRange = Range(urlRange, in: markdownText),
                let linkTextRange = Range(linkTextRange, in: markdownText) {
-                let url = String(markdownText[urlRange])
+                _ = String(markdownText[urlRange])
                 let linkText = String(markdownText[linkTextRange])
                 let replacement = "<a href=\"\("https://www.zoho.com")\">\(linkText)</a>"
                 linkReplacements.append((range: match.range, replacement: replacement))

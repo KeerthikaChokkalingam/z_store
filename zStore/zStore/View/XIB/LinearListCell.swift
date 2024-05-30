@@ -197,7 +197,7 @@ class LinearListCell: UITableViewCell,UITextViewDelegate {
                 savingPrice.widthAnchor.constraint(equalToConstant: 100),
                 savingPrice.heightAnchor.constraint(equalToConstant: 22),
                 
-                deliveryLabel.topAnchor.constraint(equalTo: priceView.bottomAnchor, constant: -5),
+                deliveryLabel.topAnchor.constraint(equalTo: priceView.bottomAnchor),
                 deliveryLabel.leadingAnchor.constraint(equalTo: namelabel.leadingAnchor),
                 deliveryLabel.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
                 

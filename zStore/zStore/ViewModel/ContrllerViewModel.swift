@@ -6,18 +6,14 @@
 //
 
 import UIKit
-import CoreData
 
-class ContrllerViewModel: NSObject,NSFetchedResultsControllerDelegate {
+class ContrllerViewModel: NSObject {
     
     var firstCellFrame: CGRect = .zero
     var secondCellFrame: CGRect = .zero
     var thirdCellFrame: CGRect = .zero
     var fouthCellFrame: CGRect = .zero
     
-    var fetchedResultsController: NSFetchedResultsController<Zstore>!
-    
-    var viewContext = CoredataBase.shared.managedContext
     
     func checkData(completion: @escaping (Result<ApiResponse, Error>) -> Void) {
         fetchCategoriesProductsAndOffers(completion: { result in
@@ -67,34 +63,13 @@ class ContrllerViewModel: NSObject,NSFetchedResultsControllerDelegate {
                         let jsonData = try JSONSerialization.data(withJSONObject: jsonDictionary, options: [])
                         
                         if CoredataBase.shared.checkIfEntityExists(entityName: "Zstore") {
-                            
-                            if self.fetchedResultsController == nil {
-                                let request = NSFetchRequest<Zstore>(entityName: "Zstore")
-                                let sortDescriptor = NSSortDescriptor(key: "response", ascending: true)
-                                request.sortDescriptors = [sortDescriptor]
-                                self.viewContext = CoredataBase.shared.managedContext
-                                self.fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.viewContext!, sectionNameKeyPath: nil, cacheName: nil)
-                                self.fetchedResultsController.delegate = self
-                            }
-                            do {
-                                try self.fetchedResultsController.performFetch()
-                                
-                                if let fetchedObjects = self.fetchedResultsController.fetchedObjects {
-                                    for object in fetchedObjects {
-                                        if let zstoreObject = object as? Zstore {
-                                            
-                                            if let response = zstoreObject.response {
-                                                completion(.success(self.convertFetchedStringtoStruct(fetchString: response)!))
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch {
-                                print("perform failed")
+                            let jsonString = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
+                            guard let coredataValues = jsonString.data(using: .utf8) else {
+                                return
                             }
                             
-                            
-                            
+                            let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: coredataValues)
+                            completion(.success(apiResponse))
                         } else {
                             
                             let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
@@ -174,25 +149,16 @@ class ContrllerViewModel: NSObject,NSFetchedResultsControllerDelegate {
             fouthCellFrame = cell.frame
         }
     }
-    func showAPIFailureAlert(on viewController: UIViewController, message: String, title: String) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alertController.addAction(okAction)
-        
-        viewController.present(alertController, animated: true, completion: nil)
-    }
     func applySort(currentSort: String, currentCategory: String) -> ApiResponse {
-      
         var sortedResponse: ApiResponse?
         if currentSort == "ratings" {
-            let selectedCategpryvalues = fetchController()
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: currentCategory)
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == currentCategory}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
             sortedResponse = selectedCategpryvalues
             sortedResponse?.products = sortedProducts
         } else {
-            let selectedCategpryvalues = fetchController()
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: currentCategory)
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == currentCategory}
             let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
             sortedResponse = selectedCategpryvalues
@@ -200,50 +166,12 @@ class ContrllerViewModel: NSObject,NSFetchedResultsControllerDelegate {
         }
         return sortedResponse ?? ApiResponse()
     }
-    func fetchController() -> ApiResponse? {
-        var apiresponse: ApiResponse?
-        if CoredataBase.shared.checkIfEntityExists(entityName: "Zstore") {
-            
-            if self.fetchedResultsController == nil {
-                let request = NSFetchRequest<Zstore>(entityName: "Zstore")
-                let sortDescriptor = NSSortDescriptor(key: "response", ascending: true)
-                request.sortDescriptors = [sortDescriptor]
-                self.viewContext = CoredataBase.shared.managedContext
-                self.fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.viewContext!, sectionNameKeyPath: nil, cacheName: nil)
-                self.fetchedResultsController.delegate = self
-            }
-            do {
-                try self.fetchedResultsController.performFetch()
-                
-                if let fetchedObjects = self.fetchedResultsController.fetchedObjects {
-                    for object in fetchedObjects {
-                        if let zstoreObject = object as? Zstore {
-                            
-                            if let response = zstoreObject.response {
-                                apiresponse = convertFetchedStringtoStruct(fetchString: response)
-                            }
-                        }
-                    }
-                }
-            } catch {
-                return nil
-            }
-            
-        }
-        return apiresponse
-    }
-    func convertFetchedStringtoStruct(fetchString: String) -> ApiResponse?{
-        var apiresponse: ApiResponse?
-        let jsonData = fetchString.data(using: .utf8)
-        do {
-            if let json1 = try JSONSerialization.jsonObject(with: jsonData!, options: []) as? [AnyHashable: Any] {
-                let jsonData = try JSONSerialization.data(withJSONObject: json1, options: [])
-                let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
-                apiresponse = apiResponse
-            }
-        } catch {
-            return nil
-        }
-        return apiresponse
+    func showAPIFailureAlert(on viewController: UIViewController, message: String, title: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        
+        viewController.present(alertController, animated: true, completion: nil)
     }
 }

@@ -78,7 +78,6 @@ class CoredataBase: NSObject {
         }
     }
 
-
     func retrieveData(entityName: String, key: String) -> [NSManagedObject]? {
         var result : [NSManagedObject]? = nil
         
@@ -112,7 +111,6 @@ class CoredataBase: NSObject {
             return false
         }
     }
-    
     func getFavoriteAndUpdate(categoryId: String, isFavorite: Bool) async -> ApiResponse? {
         var jsonString = retrieveDataAsString(entityName: "Zstore", key: "response")
         guard let jsonData = jsonString.data(using: .utf8) else {
@@ -155,8 +153,25 @@ class CoredataBase: NSObject {
             return nil
         }
     }
-
-    
+    func fetchCoreDataValues(elementId: String) -> ApiResponse? {
+        var response: ApiResponse?
+        let fetchValue = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
+        if let jsonData = fetchValue.data(using: .utf8) {
+            do {
+                if let json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any] {
+                        let jsonData = try JSONSerialization.data(withJSONObject: json1, options: [])
+                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
+                        return apiResponse
+//                    }
+                }
+            } catch {
+                return nil
+            }
+        } else {
+            return nil
+        }
+        return response
+    }
 }
 
 extension NSManagedObject {
