@@ -303,7 +303,6 @@ class WaterfallListCell: UICollectionViewCell,UITextViewDelegate  {
         if let rating = singleData?.rating {
             let ratingString = String(rating)
             let split = ratingString.split(separator: ".", omittingEmptySubsequences: false)
-            print(split)
             if split.count == 2 {
                 if split[1] == "0" {
                     ratingLabel.text = String(split[0])

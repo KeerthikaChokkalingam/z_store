@@ -32,8 +32,10 @@ class ViewController: UIViewController {
     var offerApplied: Bool = false
     var currentSort: String = "ratings"
     var offerCellHeight: CGFloat = 0
+    var searchCategoryCount: Int?
     var selectedCategoryID: String = "100023"
     var uiMappingValue: ApiResponse?
+    var categoryArray: [CategoryResponse]?
     let cellSpacing: CGFloat = 10
     var currentSelectedOfferId: String?
     var currentSelectedOfferPercenetage: CGFloat?
@@ -84,6 +86,7 @@ class ViewController: UIViewController {
             switch result {
             case .success(let apiResponse):
                 self.uiMappingValue = apiResponse
+                self.categoryArray = apiResponse.category
                 let selectedcategoryFilter = apiResponse.products?.filter{$0.categoryId == self.selectedCategoryID}
                 let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
                 self.uiMappingValue?.products = sortedProducts
@@ -173,7 +176,8 @@ class ViewController: UIViewController {
         self.searchField.text = ""
         self.searchField.resignFirstResponder()
         self.view.endEditing(true)
-        
+        self.searchCategoryCount = nil
+        self.topCategoriesCollectionView.reloadData()
         uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         if isLinearLayout == true {
             self.reloadOffersCell = true
@@ -262,9 +266,13 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
         if collectionView == topCategoriesCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
             let currentdata = self.uiMappingValue?.category?[indexPath.row]
-            cell.categoryLabel.text = currentdata?.name
+            if self.searchCategoryCount != nil && self.selectedCategoryID == currentdata?.id{
+                cell.categoryLabel.text = (currentdata?.name ?? "") + "(" + "\(self.searchCategoryCount!)" + ")"
+            } else {
+                cell.categoryLabel.text = currentdata?.name
+            }
             cell.categoryLabel.accessibilityIdentifier = currentdata?.name
-            if indexPath.row == 0 {
+            if self.selectedCategoryID == currentdata?.id {
                 cell.categoryView.backgroundColor =  UIColor(red: 254/255, green: 242/255, blue: 235/255, alpha: 1)
                 cell.categoryView.layer.borderColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1).cgColor
                 cell.categoryLabel.textColor = UIColor(red: 230/255, green: 86/255, blue: 15/255, alpha: 1)

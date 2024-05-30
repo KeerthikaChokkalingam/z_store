@@ -287,6 +287,8 @@ extension ViewController: UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
         if updatedText.isEmpty || updatedText == ""{
+            self.searchCategoryCount = nil
+            self.topCategoriesCollectionView.reloadData()
             uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         } else {
             let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
@@ -296,12 +298,17 @@ extension ViewController: UITextFieldDelegate {
             let offerData = selectedCategpryvalues?.cardOffers?.filter { $0.cardName.lowercased().contains(updatedText.lowercased()) }
             
             if (productData?.count == 0 || productData == nil) && (offerData?.count == 0 || offerData == nil){
-                self.uiMappingValue = ApiResponse()
+                self.searchCategoryCount = nil
+                self.topCategoriesCollectionView.reloadData()
+                self.uiMappingValue?.products = ApiResponse().products
+                self.uiMappingValue?.cardOffers = ApiResponse().cardOffers
             } else {
                 self.uiMappingValue?.products = productData
                 self.uiMappingValue?.cardOffers = offerData
+                
+                self.searchCategoryCount = productData?.count
+                self.topCategoriesCollectionView.reloadData()
             }
-            
         }
         
         if isLinearLayout == true {
