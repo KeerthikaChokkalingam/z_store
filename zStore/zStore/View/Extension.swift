@@ -291,7 +291,7 @@ extension ViewController: UITextFieldDelegate {
             self.topCategoriesCollectionView.reloadData()
             uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         } else {
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedCategpryvalues = viewModel?.fetchController()
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
 
             let productData = selectedcategoryFilter?.filter { $0.name.lowercased().contains(updatedText.lowercased()) }

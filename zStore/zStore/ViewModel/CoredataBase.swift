@@ -12,7 +12,7 @@ import Foundation
 class CoredataBase: NSObject {
     static let shared = CoredataBase()
     
-    private var managedContext: NSManagedObjectContext!
+    var managedContext: NSManagedObjectContext!
     
     override init() {
         super.init()
@@ -102,20 +102,7 @@ class CoredataBase: NSObject {
         }
         return ""
     }
-    func convertManagedObjectsToJSON(managedObjects: [NSManagedObject]) -> String? {
-        var jsonArray = [[String: Any]]()
-        for object in managedObjects {
-            jsonArray.append(object.toDictionary())
-        }
-        
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
-            let jsonString = String(data: jsonData, encoding: .utf8)
-            return jsonString
-        } catch {
-            return nil
-        }
-    }
+   
     func checkIfEntityExists(entityName: String) -> Bool {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         do {
@@ -124,41 +111,6 @@ class CoredataBase: NSObject {
         } catch {
             return false
         }
-    }
-    
-    func fetchCoreDataValues(elementId: String) -> ApiResponse? {
-        var response: ApiResponse?
-        let fetchValue = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
-        if let jsonData = fetchValue.data(using: .utf8) {
-            do {
-                if let json1 = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [AnyHashable: Any] {
-                        let jsonData = try JSONSerialization.data(withJSONObject: json1, options: [])
-                        let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
-                        return apiResponse
-//                    }
-                }
-            } catch {
-                return nil
-            }
-        } else {
-            return nil
-        }
-        return response
-    }
-    func fetchProductsForCategories() -> ApiResponse? {
-        var response: ApiResponse?
-        let fetchValue = CoredataBase.shared.retrieveDataAsString(entityName: "Zstore", key: "response")
-        if let jsonData = fetchValue.data(using: .utf8) {
-            do {
-                let apiResponse = try JSONDecoder().decode(ApiResponse.self, from: jsonData)
-                response = apiResponse
-            } catch {
-                return nil
-            }
-        } else {
-            return nil
-        }
-        return response
     }
     
     func getFavoriteAndUpdate(categoryId: String, isFavorite: Bool) async -> ApiResponse? {
