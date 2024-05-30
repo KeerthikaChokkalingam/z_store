@@ -272,14 +272,12 @@ extension ViewController: UITextFieldDelegate {
         return true
     }
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // Get the updated text
         let currentText = textField.text ?? ""
         guard let stringRange = Range(range, in: currentText) else {
             return false
         }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
-        // Perform the search
         if updatedText.isEmpty || updatedText == ""{
             self.uiMappingValue = self.sortBase
         } else {

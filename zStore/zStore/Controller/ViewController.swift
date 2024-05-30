@@ -120,6 +120,40 @@ class ViewController: UIViewController {
         }
               
     }
+    func calculateCellHeight(for indexPath: IndexPath) -> CGFloat {
+        guard let selectedcategoryFilter = self.uiMappingValue?.products?.filter({ $0.categoryId == selectedCategoryID }),
+              selectedcategoryFilter.count > indexPath.item else {
+            return 300
+        }
+        
+        let currentData = selectedcategoryFilter[indexPath.item]
+        let productName = currentData.name 
+        let productDescription = currentData.description 
+        
+        let nameLabelFont = UIFont.systemFont(ofSize: 14)
+        let maxNameLabelHeight: CGFloat = nameLabelFont.lineHeight * 4
+        let nameLabelRect = productName.boundingRect(
+            with: CGSize(width: (self.view.frame.size.width / 2) - 20, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [NSAttributedString.Key.font: nameLabelFont],
+            context: nil
+        )
+        let nameLabelHeight = min(nameLabelRect.height, maxNameLabelHeight)
+        
+        let deliveryLabelFont = UIFont.boldSystemFont(ofSize: 12)
+        let maxDeliveryLabelHeight: CGFloat = deliveryLabelFont.lineHeight * 3
+        let deliveryLabelRect = productDescription.boundingRect(
+            with: CGSize(width: (self.view.frame.size.width / 2) - 20, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [NSAttributedString.Key.font: deliveryLabelFont],
+            context: nil
+        )
+        let deliveryLabelHeight = min(deliveryLabelRect.height, maxDeliveryLabelHeight)
+        
+        let totalHeight = 200 + nameLabelHeight + 10 + 18 + 25 + deliveryLabelHeight + 36 + 40
+        return totalHeight
+    }
+
     @objc func searchButtonAction(_ sender: UIButton) {
         searchTapped = true
         topTitleView.isHidden = true
@@ -263,28 +297,8 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     return CGSize(width: 390, height: 186 + offerCellHeight)
                 } else { return CGSize(width: 0, height: 0)}
             } else {
-                    let selectedcategoryFilter = self.uiMappingValue?.products?.filter { $0.categoryId == selectedCategoryID }
-                if (selectedcategoryFilter?.count ?? 0) > indexPath.item {
-                    let currentData = selectedcategoryFilter?[indexPath.row]
-                    let productName = currentData?.name ?? ""
-                    let nameLabelFont = UIFont.systemFont(ofSize: 14)
-                    let nameLabelLineHeight = nameLabelFont.lineHeight
-                    let maxNameLabelHeight = nameLabelLineHeight * 4
-                    let nameLabelSize = CGSize(width:((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
-                    var nameLabelRect = productName.boundingRect(with: nameLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: nameLabelFont], context: nil)
-                    nameLabelRect.size.height = min(nameLabelRect.size.height, maxNameLabelHeight)
-                    let productDescription = currentData?.description ?? ""
-                    let deliveryLabelFont = UIFont.boldSystemFont(ofSize: 12)
-                    let deliveryLabelLineHeight = deliveryLabelFont.lineHeight
-                    let maxDeliveryLabelHeight = deliveryLabelLineHeight * 3
-                    let deliveryLabelSize = CGSize(width: ((self.view.frame.size.width/2) - 20), height: CGFloat.greatestFiniteMagnitude)
-                    var deliveryLabelRect = productDescription.boundingRect(with: deliveryLabelSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: deliveryLabelFont], context: nil)
-                    deliveryLabelRect.size.height = min(deliveryLabelRect.size.height, maxDeliveryLabelHeight)
-                    let totalHeight = 200 + nameLabelRect.height + 10 + 18 + 25 + deliveryLabelRect.height + 36 + 40
-                    return CGSize(width: (self.view.frame.size.width/2) - 10, height: totalHeight)
-                } else {
-                    return CGSize(width: (self.view.frame.size.width/2) - 10, height: 300)
-                }
+                let cellHeight = calculateCellHeight(for: indexPath)
+                return CGSize(width: (self.view.frame.size.width/2) - 10, height: cellHeight)
             }
         }
     }

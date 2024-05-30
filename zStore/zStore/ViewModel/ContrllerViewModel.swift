@@ -15,7 +15,6 @@ class ContrllerViewModel: NSObject {
     var fouthCellFrame: CGRect = .zero
     
     
-    
     func checkData(completion: @escaping (Result<ApiResponse, Error>) -> Void) {
         fetchCategoriesProductsAndOffers(completion: { result in
             switch result {
@@ -172,44 +171,6 @@ class ContrllerViewModel: NSObject {
             )
             fouthCellFrame = cell.frame
         }
-    }
-    
-    // MARK: Dynamic Waterfall Cell Layout
-    
-    func calculateWaterFallCellFrame(index: Int, cell: UICollectionViewCell, updatedheight: CGFloat, updatedWidth: CGFloat) -> CGRect {
-        switch index {
-        case 0:
-            cell.frame = CGRect(x: 0, y: 0, width: updatedWidth, height: updatedheight)
-            firstCellFrame = cell.frame
-        case 1:
-            cell.frame = CGRect(x: firstCellFrame.maxX, y: 0, width: updatedWidth, height: updatedheight)
-            secondCellFrame = cell.frame
-        default:
-            cell.frame = calculateWaterFallCellPosition(firstFrame: firstCellFrame, secondFrame: secondCellFrame, cell: cell, updatedheight: updatedheight, updatedWidth: updatedWidth)
-        }
-        return cell.frame
-    }
-    
-    
-    private func calculateWaterFallCellPosition(firstFrame: CGRect, secondFrame: CGRect, cell: UICollectionViewCell, updatedheight: CGFloat, updatedWidth: CGFloat) -> CGRect {
-        if firstFrame.maxY < secondFrame.maxY {
-            cell.frame = CGRect(
-                x: 0,
-                y: firstFrame.maxY,
-                width: updatedWidth,
-                height: updatedheight
-            )
-            firstCellFrame = cell.frame
-        } else {
-            cell.frame = CGRect(
-                x: firstFrame.maxX,
-                y: secondFrame.maxY,
-                width: updatedWidth,
-                height: updatedheight
-            )
-            secondCellFrame = cell.frame
-        }
-        return cell.frame
     }
     
 }
