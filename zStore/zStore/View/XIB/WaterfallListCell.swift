@@ -21,6 +21,8 @@ class WaterfallListCell: UICollectionViewCell {
     weak var ratingCount: UILabel!
     weak var priceView: UIView!
     weak var offerPrice: UILabel!
+    weak var actualPrice: UILabel!
+    weak var savingPrice: UIButton!
     weak var deliveryLabel: UILabel!
     weak var addToFavView: UIView!
     weak var favIcon: UIImageView!
@@ -112,6 +114,34 @@ class WaterfallListCell: UICollectionViewCell {
         offerPrice.sizeToFit()
         self.offerPrice = offerPrice
         self.priceView.addSubview(offerPrice)
+        
+        let actualPrice = UILabel()
+        actualPrice.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        actualPrice.translatesAutoresizingMaskIntoConstraints = false
+        actualPrice.isHidden = false
+        actualPrice.sizeToFit()
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+            .foregroundColor: UIColor(red: 152/255, green: 152/255, blue: 152/255, alpha: 1),
+            .font: actualPrice.font!
+        ]
+        let attributedString = NSAttributedString(string: "₹" + "64,999", attributes: attributes)
+        actualPrice.attributedText = attributedString
+        self.actualPrice = actualPrice
+        self.priceView.addSubview(actualPrice)
+        
+        let savingPrice = UIButton(type: .custom)
+    savingPrice.translatesAutoresizingMaskIntoConstraints = false
+        savingPrice.setTitle("Save ₹2000", for: .normal)
+        savingPrice.backgroundColor = UIColor(red: 21/255, green: 140/255, blue: 91/255, alpha: 1)
+        savingPrice.setTitleColor(UIColor.white, for: .normal)
+    savingPrice.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+    savingPrice.layer.cornerRadius = 12
+    savingPrice.sizeToFit()
+    savingPrice.titleLabel?.textAlignment = .center
+        self.savingPrice = savingPrice
+        self.priceView.addSubview(savingPrice)
         
         let deliveryLabel = UILabel()
         deliveryLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -212,7 +242,18 @@ class WaterfallListCell: UICollectionViewCell {
             priceView.trailingAnchor.constraint(equalTo: cardImage.trailingAnchor),
             priceView.heightAnchor.constraint(equalToConstant: 25),
             
-            deliveryLabel.topAnchor.constraint(equalTo: priceView.bottomAnchor),
+            offerPrice.centerYAnchor.constraint(equalTo: priceView.centerYAnchor),
+            offerPrice.leadingAnchor.constraint(equalTo: priceView.leadingAnchor),
+            
+            actualPrice.centerYAnchor.constraint(equalTo: priceView.centerYAnchor),
+            actualPrice.leadingAnchor.constraint(equalTo: offerPrice.trailingAnchor, constant: 5),
+            
+            savingPrice.topAnchor.constraint(equalTo: priceView.bottomAnchor),
+            savingPrice.leadingAnchor.constraint(equalTo: cardImage.leadingAnchor, constant: 10),
+            savingPrice.widthAnchor.constraint(equalToConstant: 100),
+            savingPrice.heightAnchor.constraint(equalToConstant: 22),
+            
+            deliveryLabel.topAnchor.constraint(equalTo: savingPrice.bottomAnchor, constant: 3),
             deliveryLabel.leadingAnchor.constraint(equalTo: cardImage.leadingAnchor, constant: 10),
             deliveryLabel.trailingAnchor.constraint(equalTo: cardImage.trailingAnchor),
             

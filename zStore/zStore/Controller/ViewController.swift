@@ -145,8 +145,14 @@ class ViewController: UIViewController {
             context: nil
         )
         let deliveryLabelHeight = min(deliveryLabelRect.height, maxDeliveryLabelHeight)
+        var favViewHeight: CGFloat = 0
+        if currentData.addToFav == true {
+            favViewHeight = 0
+        } else {
+            favViewHeight = 35
+        }
         
-        let totalHeight = 200 + nameLabelHeight + 10 + 18 + 25 + deliveryLabelHeight + 36 + 40
+        let totalHeight = 200 + nameLabelHeight + 10 + 18 + 25 + deliveryLabelHeight + 36 + 40 + favViewHeight
         return totalHeight
     }
 

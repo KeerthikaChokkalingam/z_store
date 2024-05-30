@@ -252,8 +252,22 @@ extension ViewController {
 }
 extension ViewController: updateTable {
     func updatedData(response: ApiResponse) {
-        var selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-        uiMappingValue?.products = selectedCategpryvalues?.products
+        
+        if self.currentSort == "ratings" {
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
+            uiMappingValue?.products = sortedProducts
+        } else {
+
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
+            uiMappingValue?.products = sortedProducts
+        }
+        
         DispatchQueue.main.async {
             if self.isLinearLayout {
                 self.linearLayout.reloadData()
