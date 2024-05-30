@@ -340,7 +340,7 @@ class LinearListCell: UITableViewCell,UITextViewDelegate {
             
             if let urlRange = Range(urlRange, in: markdownText),
                let linkTextRange = Range(linkTextRange, in: markdownText) {
-                let url = String(markdownText[urlRange])
+                let _ = String(markdownText[urlRange])
                 let linkText = String(markdownText[linkTextRange])
                 let replacement = "<a href=\"\("https://www.zoho.com")\">\(linkText)</a>"
                 linkReplacements.append((range: match.range, replacement: replacement))

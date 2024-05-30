@@ -260,21 +260,7 @@ extension ViewController {
 }
 extension ViewController: updateTable {
     func updatedData(response: ApiResponse) {
-        
-        if self.currentSort == "ratings" {
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
-            uiMappingValue?.products = sortedProducts
-        } else {
-
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
-            uiMappingValue?.products = sortedProducts
-        }
+        uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         
         DispatchQueue.main.async {
             if self.isLinearLayout {
@@ -301,19 +287,7 @@ extension ViewController: UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
         if updatedText.isEmpty || updatedText == ""{
-            
-            if self.currentSort == "ratings" {
-                let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-                let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-                let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-                uiMappingValue?.products = sortedProducts
-            } else {
-
-                let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-                let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-                let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-                uiMappingValue?.products = sortedProducts
-            }
+            uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         } else {
             let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
             let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
@@ -348,19 +322,7 @@ extension ViewController: SortViewDelegate {
             tempView.removeFromSuperview()
         }
         currentSort = option
-        if option == "ratings" {
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            uiMappingValue?.products = sortedProducts
-            
-        } else {
-
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            uiMappingValue?.products = sortedProducts
-        }
+        uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         if isLinearLayout == true {
             self.reloadOffersCell = true
             self.linearLayout.reloadData()

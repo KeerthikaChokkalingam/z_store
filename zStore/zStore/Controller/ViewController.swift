@@ -26,7 +26,7 @@ class ViewController: UIViewController {
     weak var indicatorView: UIActivityIndicatorView!
     
     var viewModel: ContrllerViewModel?
-    var searchTapped: Bool = false
+    var isSearchActive: Bool = false
     var isLinearLayout: Bool = false
     var reloadOffersCell: Bool = false
     var offerApplied: Bool = false
@@ -47,9 +47,11 @@ class ViewController: UIViewController {
         apiCall()
         
     }
+    
     deinit {
         viewModel = nil
     }
+    
     func loadContent() {
         viewModel = ContrllerViewModel()
         self.searchButton.addTarget(self, action: #selector(searchButtonAction(_:)), for: .touchUpInside)
@@ -61,6 +63,7 @@ class ViewController: UIViewController {
 
 
     }
+    
     func setUpDelegate() {
             self.waterfalllayout.delegate = self
             self.waterfalllayout.dataSource = self
@@ -91,24 +94,14 @@ class ViewController: UIViewController {
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.hideActivityIndicator()
+                    self.viewModel?.showAPIFailureAlert(on: self, message: error.localizedDescription, title: "Error")
                 }
-                print("Failed to fetch data: \(error.localizedDescription)")
             }
         })
         
     }
     func ratingsSort(sortString: String) {
-        if sortString == "ratings" {
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            uiMappingValue?.products = sortedProducts
-        } else {
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            uiMappingValue?.products = sortedProducts
-        }
+        uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         
         if isLinearLayout == true {
             linearLayout.delegate = self
@@ -165,14 +158,14 @@ class ViewController: UIViewController {
     }
 
     @objc func searchButtonAction(_ sender: UIButton) {
-        searchTapped = true
+        isSearchActive = true
         topTitleView.isHidden = true
         topSearchViewView.isHidden = false
         searchCancelButton.isHidden = false
         searchField.isHidden = false
     }
     @objc func cancelButtonAction(_ sender: UIButton) {
-        searchTapped = false
+        isSearchActive = false
         topTitleView.isHidden = false
         topSearchViewView.isHidden = true
         searchCancelButton.isHidden = true
@@ -181,21 +174,7 @@ class ViewController: UIViewController {
         self.searchField.resignFirstResponder()
         self.view.endEditing(true)
         
-        if self.currentSort == "ratings" {
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
-            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
-            uiMappingValue?.products = sortedProducts
-        } else {
-
-            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: selectedCategoryID)
-            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == selectedCategoryID}
-            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
-            uiMappingValue?.cardOffers = selectedCategpryvalues?.cardOffers
-            uiMappingValue?.products = sortedProducts
-        }
-        
+        uiMappingValue = viewModel?.applySort(currentSort: currentSort, currentCategory: selectedCategoryID)
         if isLinearLayout == true {
             self.reloadOffersCell = true
             self.linearLayout.reloadData()

@@ -149,5 +149,30 @@ class ContrllerViewModel: NSObject {
             fouthCellFrame = cell.frame
         }
     }
+    func showAPIFailureAlert(on viewController: UIViewController, message: String, title: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        
+        viewController.present(alertController, animated: true, completion: nil)
+    }
+    func applySort(currentSort: String, currentCategory: String) -> ApiResponse {
+        var sortedResponse: ApiResponse?
+        if currentSort == "ratings" {
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: currentCategory)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == currentCategory}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.rating > $1.rating }
+            sortedResponse = selectedCategpryvalues
+            sortedResponse?.products = sortedProducts
+        } else {
+            let selectedCategpryvalues = CoredataBase.shared.fetchCoreDataValues(elementId: currentCategory)
+            let selectedcategoryFilter = selectedCategpryvalues?.products?.filter{$0.categoryId == currentCategory}
+            let sortedProducts = selectedcategoryFilter?.sorted { $0.price > $1.price }
+            sortedResponse = selectedCategpryvalues
+            sortedResponse?.products = sortedProducts
+        }
+        return sortedResponse ?? ApiResponse()
+    }
     
 }

@@ -448,11 +448,11 @@ class WaterfallListCell: UICollectionViewCell,UITextViewDelegate  {
     }
     // asign gesture
     func setUpGesture() {
-        var removeFromfavoriteGesture = UITapGestureRecognizer(target: self, action: #selector(handleRemoveTap(_:)))
+        let removeFromfavoriteGesture = UITapGestureRecognizer(target: self, action: #selector(handleRemoveTap(_:)))
         topLeftIcon.isUserInteractionEnabled = true
         removeFromfavoriteGesture.numberOfTapsRequired = 1
         topLeftIcon.addGestureRecognizer(removeFromfavoriteGesture)
-        var addfavoriteGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        let addfavoriteGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         addToFavView.isUserInteractionEnabled = true
         addfavoriteGesture.numberOfTapsRequired = 1
         addToFavView.addGestureRecognizer(addfavoriteGesture)
