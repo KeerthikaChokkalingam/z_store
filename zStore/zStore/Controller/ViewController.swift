@@ -156,7 +156,7 @@ class ViewController: UIViewController {
         } else {
             savingsButtonheight = 0
         }
-        let totalHeight = 200 + nameLabelHeight + 10 + 18 + savingsButtonheight + deliveryLabelHeight + 36 + 40 + favViewHeight
+        let totalHeight = 200 + nameLabelHeight + 10 + 18 + savingsButtonheight + deliveryLabelHeight + 36 + 30 + favViewHeight
         return totalHeight
     }
 
@@ -320,13 +320,23 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        var labelSize: CGSize = CGSize(width: 0, height: 0)
         if collectionView == topCategoriesCollectionView {
             let currentdata = self.uiMappingValue?.category?[indexPath.row]
-            let labelSize = (currentdata?.name as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
-                                                                          options: [.usesLineFragmentOrigin, .usesFontLeading],
-                                                                          attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
-                                                                          context: nil).size
-            return CGSize(width: labelSize!.width + 30, height: 32)
+        if self.searchCategoryCount != nil && self.selectedCategoryID == currentdata?.id{
+            let data = (currentdata?.name ?? "") + "(" + "\(self.searchCategoryCount!)" + ")"
+            labelSize = ((data as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
+                                                                      options: [.usesLineFragmentOrigin, .usesFontLeading],
+                                                                      attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
+                                                                      context: nil).size)!
+        } else {
+            labelSize = ((currentdata?.name as? String)?.boundingRect(with: CGSize(width: 0, height: 32),
+                                                                      options: [.usesLineFragmentOrigin, .usesFontLeading],
+                                                                      attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)],
+                                                                      context: nil).size)!
+        }
+            
+            return CGSize(width: labelSize.width + 30, height: 32)
         } else {
             if indexPath.section == 0 {
                 if ((self.uiMappingValue?.cardOffers?.count ?? 0) > 0) {
